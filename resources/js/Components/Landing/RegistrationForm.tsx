@@ -1,12 +1,10 @@
 import { useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Division } from '../../../types';
 import { cn } from '../../lib/utils';
 import { store } from '@/actions/App/Http/Controllers/RegistrationController';
 
-interface Division {
-    id: number;
-    name: string;
-}
+
 
 interface Props {
     divisions: Division[];
@@ -15,7 +13,7 @@ interface Props {
 
 export default function RegistrationForm({ divisions, fixedFee }: Props) {
     const [step, setStep] = useState(1);
-    const { data, setData, post, processing, errors } = useForm({
+const { data, setData, post, processing, errors } = useForm({
         team_name: '',
         division_id: '',
         coach_name: '',
@@ -23,6 +21,15 @@ export default function RegistrationForm({ divisions, fixedFee }: Props) {
         players: [{ name: '', jersey_number: '', position: '', birth_date: '' }],
         agreed_to_terms: false,
     });
+
+    const [finalDivisions, setFinalDivisions] = useState<Division[]>(divisions);
+
+    useEffect(() => {
+      fetch('/api/divisions')
+        .then(res => res.json())
+        .then(data => setFinalDivisions(data))
+        .catch(err => console.error('Failed to fetch divisions', err));
+    }, []);
 
     const addPlayer = () => {
         if (data.players.length < 12) {
@@ -55,7 +62,7 @@ export default function RegistrationForm({ divisions, fixedFee }: Props) {
         <div id="register" className="relative">
              {/* Background Effects */}
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-full bg-brand-gold/5 blur-[120px] pointer-events-none rounded-full" />
-             
+
              <div className="mx-auto max-w-4xl">
                  <div className="mb-20 text-center">
                      <span className="mb-4 inline-block text-[10px] font-bold tracking-[0.3em] text-brand-gold uppercase">Official Entry Form</span>
@@ -109,9 +116,9 @@ export default function RegistrationForm({ divisions, fixedFee }: Props) {
                                              onChange={e => setData('division_id', e.target.value)}
                                              className="w-full rounded-xl border border-white/10 bg-zinc-950/50 p-5 text-sm font-bold text-white outline-none focus:border-brand-gold/50 transition-all appearance-none"
                                          >
-                                             <option value="" className="bg-zinc-900">Select Division</option>
-                                             {divisions.map(d => (
-                                                 <option key={d.id} value={d.id} className="bg-zinc-900">{d.name}</option>
+<option value="" className="bg-zinc-900">Select Division</option>
+                                             {finalDivisions.map(d => (
+                                                 <option key={d.id} value={d.id} className="bg-zinc-900">{d.name}{d.registration_fee ? ` (₱${d.registration_fee})` : ''}</option>
                                              ))}
                                          </select>
                                          {errors.division_id && <p className="mt-3 text-xs font-black text-red-500 uppercase tracking-widest">{errors.division_id}</p>}
@@ -247,7 +254,7 @@ export default function RegistrationForm({ divisions, fixedFee }: Props) {
                              <div className="animate-in fade-in slide-in-from-right-8 duration-700">
                                   <div className="rounded-3xl bg-zinc-950/80 border border-brand-gold/30 p-10 shadow-3xl relative overflow-hidden">
                                       <div className="absolute -top-10 -right-10 h-64 w-64 bg-brand-gold/10 blur-[100px] pointer-events-none" />
-                                      
+
                                       <div className="flex items-start gap-8 mb-12">
                                           <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-brand-gold text-black shadow-2xl shadow-brand-gold/40">
                                               <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,7 +285,7 @@ export default function RegistrationForm({ divisions, fixedFee }: Props) {
                                                   </span>
                                               </div>
                                           </label>
-                                          
+
                                           <div className="bg-brand-gold/5 rounded-2xl p-6 border border-brand-gold/10">
                                               <div className="flex gap-4">
                                                   <div className="h-5 w-5 bg-brand-gold shrink-0 rounded flex items-center justify-center text-[10px] font-black text-black">!</div>

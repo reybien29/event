@@ -24,6 +24,8 @@ Route::get('/register', [RegistrationController::class, 'create'])->name('regist
 Route::post('/register', [RegistrationController::class, 'store'])->name('register.store');
 Route::get('/register/success/{reference}', [RegistrationController::class, 'success'])->name('registration.success');
 
+Route::get('/api/divisions', [\App\Http\Controllers\Admin\DivisionController::class, 'apiIndex']);
+
 Route::get('/admin/login', [App\Http\Controllers\Admin\AuthController::class, 'create'])->name('login');
 Route::post('/admin/login', [App\Http\Controllers\Admin\AuthController::class, 'store']);
 Route::post('/admin/logout', [App\Http\Controllers\Admin\AuthController::class, 'destroy'])->name('admin.logout');

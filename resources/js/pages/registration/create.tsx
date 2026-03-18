@@ -1,14 +1,11 @@
 import { Head, useForm } from '@inertiajs/react';
 import LandingLayout from '../../Layouts/LandingLayout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Division } from '../../../types';
 import { cn } from '../../lib/utils';
 import { store } from '@/actions/App/Http/Controllers/RegistrationController';
 
-interface Division {
-    id: number;
-    name: string;
-    registration_fee: number;
-}
+
 
 interface Props {
     divisions: Division[];
@@ -16,7 +13,7 @@ interface Props {
 
 export default function Create({ divisions }: Props) {
     const [step, setStep] = useState(1);
-    const { data, setData, post, processing, errors } = useForm({
+const { data, setData, post, processing, errors } = useForm({
         team_name: '',
         division_id: '',
         coach_name: '',
@@ -24,6 +21,15 @@ export default function Create({ divisions }: Props) {
         players: [{ name: '', jersey_number: '', position: '', birth_date: '' }],
         agreed_to_terms: false,
     });
+
+    const [finalDivisions, setFinalDivisions] = useState<Division[]>(divisions);
+
+    useEffect(() => {
+      fetch('/api/divisions')
+        .then(res => res.json())
+        .then(data => setFinalDivisions(data))
+        .catch(err => console.error('Failed to fetch divisions', err));
+    }, []);
 
     const addPlayer = () => {
         if (data.players.length < 12) {
@@ -78,7 +84,7 @@ export default function Create({ divisions }: Props) {
                     {step === 1 && (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <h2 className="mb-8 text-3xl font-black tracking-tighter uppercase sm:text-4xl">Establish your <span className="text-brand-gold">Identity.</span></h2>
-                            
+
                             <div className="space-y-6">
                                 <div>
                                     <label className="block text-[10px] font-bold tracking-widest text-zinc-500 uppercase mb-2">Team Name</label>
@@ -99,9 +105,9 @@ export default function Create({ divisions }: Props) {
                                         onChange={e => setData('division_id', e.target.value)}
                                         className="w-full rounded border border-white/5 bg-zinc-900/50 p-4 text-white outline-none focus:border-brand-gold/50"
                                     >
-                                        <option value="">Choose a division</option>
-                                        {divisions.map(d => (
-                                            <option key={d.id} value={d.id}>{d.name} (₱ {d.registration_fee})</option>
+<option value="">Choose a division</option>
+                                        {finalDivisions.map(d => (
+                                            <option key={d.id} value={d.id}>{d.name}{d.registration_fee ? ` (₱${d.registration_fee})` : ''}</option>
                                         ))}
                                     </select>
                                     {errors.division_id && <p className="mt-2 text-xs font-bold text-red-500">{errors.division_id}</p>}
@@ -251,10 +257,10 @@ export default function Create({ divisions }: Props) {
                     {step === 3 && (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                              <h2 className="mb-8 text-3xl font-black tracking-tighter uppercase sm:text-4xl text-brand-gold">Validation <span className='text-white'>Gate.</span></h2>
-                             
+
                              <div className="rounded-2xl bg-zinc-900 border border-brand-gold/30 p-8 shadow-2xl relative overflow-hidden">
                                  <div className="absolute top-0 right-0 h-40 w-40 -translate-y-1/2 translate-x-1/2 rounded-full bg-brand-gold/10 blur-[80px]" />
-                                 
+
                                  <div className="flex items-start gap-6 mb-8">
                                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded bg-brand-gold text-black shadow-lg">
                                          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -13,4 +13,9 @@ class DivisionController extends Controller
             'divisions' => Division::all(),
         ]);
     }
+
+    public function apiIndex()
+    {
+        return response()->json(Division::all());
+    }
 }
