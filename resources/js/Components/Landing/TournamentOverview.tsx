@@ -6,115 +6,201 @@ interface Props {
         start_date?: string | null;
         end_date?: string | null;
     };
-    fixedFee: string;
 }
 
-export default function TournamentOverview({ tournament, fixedFee }: Props) {
+const cn = (...classes: (string | boolean | undefined | null)[]) =>
+    classes.filter(Boolean).join(' ');
+
+export default function TournamentOverview({ tournament }: Props) {
+    const podiumTiers = [
+        {
+            rank: '2nd',
+            label: 'Runner Up',
+            amount: '₱120,000',
+            icon: '🥈',
+            order: 'order-1',
+            featured: false,
+        },
+        {
+            rank: '1st',
+            label: 'Champion',
+            amount: '₱250,000',
+            icon: '🏆',
+            order: 'order-2',
+            featured: true,
+        },
+        {
+            rank: '3rd',
+            label: '3rd Place',
+            amount: '₱80,000',
+            icon: '🥉',
+            order: 'order-3',
+            featured: false,
+        },
+    ];
+
+    const benefits = [
+        { icon: '👕', label: 'OFFICIAL LEAGUE JERSEY' },
+        { icon: '🏀', label: 'MIN. 5 GUARANTEED GAMES' },
+        { icon: '📋', label: 'DIVISION BRACKET SCHEDULING' },
+        { icon: '⚖️', label: 'PROFESSIONAL OFFICIATING' },
+    ];
+
     return (
-        <div id="overview" className="relative overflow-x-clip">
-            <div className="animate-in fill-mode-forwards slide-in-from-bottom-8 fade-in mb-20 flex flex-col items-center text-center duration-1000">
-                <span className="mb-8 inline-flex items-center gap-2 rounded-full border border-brand-gold/30 bg-brand-gold/10 px-4 py-1.5 text-[10px] font-black tracking-[0.3em] text-brand-gold uppercase shadow-[0_0_20px_rgba(234,179,8,0.1)]">
-                    Tournament Central
+        <div id="overview" className="relative">
+
+            {/* ── Keyframe injection ── */}
+            <style>{`
+                @keyframes shimmer {
+                    0%   { background-position: 200% 0; }
+                    100% { background-position: -200% 0; }
+                }
+                @keyframes floatUp {
+                    0%   { opacity: 0; transform: translateY(32px); }
+                    100% { opacity: 1; transform: translateY(0); }
+                }
+                .shimmer-text {
+                    background: linear-gradient(
+                        90deg,
+                        #EAB308 0%,
+                        #FDE047 35%,
+                        #EAB308 50%,
+                        #CA8A04 65%,
+                        #EAB308 100%
+                    );
+                    background-size: 250% 100%;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    animation: shimmer 3.5s infinite linear;
+                }
+                .float-in { animation: floatUp 0.9s ease both; }
+                .float-in-2 { animation: floatUp 0.9s 0.15s ease both; }
+                .float-in-3 { animation: floatUp 0.9s 0.3s ease both; }
+                .podium-card-hover { transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+                .podium-card-hover:hover { 
+                    transform: translateY(-8px);
+                    border-color: rgba(234, 179, 8, 0.4);
+                    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+                }
+            `}</style>
+
+            {/* ══════════════════════════════════════════
+                PRIZE POOL HERO
+            ══════════════════════════════════════════ */}
+            <div className="float-in-2 relative mb-20 text-center">
+                <span className="mb-4 inline-block text-[11px] font-black tracking-[0.6em] text-brand-gold uppercase">
+                    Season 1 — Total Prize Pool
                 </span>
-                <h1 className="drop-shadow-3xl mb-8 max-w-5xl text-5xl leading-[1] font-black tracking-tighter break-words text-white uppercase italic sm:text-7xl lg:text-9xl">
-                    {tournament.name || 'Elite Basketball League 2026'}
-                </h1>
-                <p className="max-w-2xl text-xl leading-relaxed font-medium text-zinc-300 drop-shadow">
-                    {tournament.description ||
-                        'The premier basketball league where legends are born and careers are made.'}
+
+                {/* Giant shimmer amount */}
+                <div className="relative mb-6 block">
+                    <span
+                        className="shimmer-text block text-[clamp(3rem,10vw,6rem)] font-black leading-none tracking-[-0.04em] uppercase"
+                    >
+                        {tournament.prize_pool || '₱500,000'}
+                    </span>
+                    {/* Subtle glow behind the text */}
+                    <div className="pointer-events-none absolute inset-0 -z-10 mx-auto w-1/2 blur-[100px] bg-brand-gold/15 rounded-full" />
+                </div>
+
+                <p className="text-[11px] font-bold tracking-[0.4em] text-zinc-500 uppercase">
+                    Up for grabs this season
                 </p>
             </div>
 
-            <div className="mb-20 flex justify-center">
-                <div className="group animate-in fill-mode-forwards slide-in-from-bottom-8 fade-in relative w-full max-w-4xl overflow-hidden rounded-[2rem] border border-brand-gold/15 bg-[linear-gradient(140deg,rgba(15,23,42,0.92),rgba(30,41,59,0.82),rgba(234,179,8,0.08))] p-8 shadow-[0_30px_120px_rgba(0,0,0,0.35)] backdrop-blur-3xl duration-1000 sm:p-12">
-                    <div className="pointer-events-none absolute -top-8 -right-8 h-48 w-48 bg-brand-gold/10 opacity-70 blur-[80px] transition-opacity group-hover:opacity-100" />
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(234,179,8,0.12),transparent_35%)]" />
-
-                    <div className="relative z-10 text-center sm:text-left">
-                        <span className="text-[10px] font-black tracking-[0.5em] text-brand-gold/80 uppercase">
-                            Entry Protocol
-                        </span>
-                        <div className="mt-6 flex flex-col gap-4 border-b border-brand-gold/10 pb-12 sm:flex-row sm:items-baseline sm:justify-between">
-                            <div>
-                                <span className="text-5xl font-black tracking-tighter text-brand-gold drop-shadow-[0_0_15px_rgba(234,179,8,0.2)] sm:text-7xl">
-                                    {fixedFee}
-                                </span>
-                                <span className="mt-2 block text-[11px] font-black tracking-widest text-zinc-500 uppercase">
-                                    Participation fee per team
-                                </span>
-                            </div>
-
-                            <div className="flex flex-col gap-2 sm:items-end">
-                                <span className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">
-                                    Season 1 Pool
-                                </span>
-                                <div className="text-4xl font-black tracking-tighter text-white uppercase italic transition-colors group-hover:text-brand-gold">
-                                    {tournament.prize_pool || 'PH-500K'}
-                                </div>
-                            </div>
+            {/* ══════════════════════════════════════════
+                PODIUM TIERS
+            ══════════════════════════════════════════ */}
+            <div className="float-in-3 mb-16 flex flex-col items-center justify-center gap-6 px-4 md:flex-row md:items-stretch lg:gap-10">
+                {podiumTiers.map((tier) => (
+                    <div
+                        key={tier.rank}
+                        className={cn(
+                            'podium-card-hover group relative flex w-full max-w-[320px] flex-col items-center overflow-hidden rounded-[2.5rem] border py-10 transition-all duration-500',
+                            tier.featured
+                                ? 'z-10 bg-zinc-900/40 border-brand-gold/40 scale-105 shadow-[0_30px_60px_-12px_rgba(0,0,0,0.4)] px-10'
+                                : 'bg-zinc-900/20 border-white/5 px-8 opacity-90 backdrop-blur-sm',
+                            tier.order,
+                        )}
+                    >
+                        {/* Top icon */}
+                        <div className={cn(
+                            'mb-8 text-5xl drop-shadow-2xl transition-transform duration-500 group-hover:scale-110',
+                            tier.featured ? 'text-6xl' : 'text-5xl'
+                        )}>
+                            {tier.icon}
                         </div>
 
-                        <div className="mt-12 grid grid-cols-1 gap-12 text-left sm:grid-cols-2">
-                            <div className="space-y-6">
-                                <span className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">
-                                    Team Benefits
-                                </span>
-                                <ul className="grid grid-cols-1 gap-4">
-                                    {[
-                                        'Official League Jersey',
-                                        'Minimum 5 Guaranteed Matches',
-                                        'Division-Based Bracket Scheduling',
-                                        'Professional Officiating',
-                                    ].map((item, index) => (
-                                        <li
-                                            key={item}
-                                            className="flex items-center gap-4 text-xs font-bold tracking-tighter text-white uppercase italic transition-colors hover:text-brand-gold"
-                                        >
-                                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-brand-gold/20 bg-brand-gold/10 text-[8px] text-brand-gold">
-                                                {index + 1}
-                                            </span>
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            <div className="flex flex-col justify-end gap-6 rounded-[1.5rem] border border-brand-gold/10 bg-white/[0.03] p-6">
-                                <div className="space-y-2">
-                                    <span className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">
-                                        Tournament Opens
-                                    </span>
-                                    <div className="inline-block border-b border-brand-gold/20 pb-1 text-2xl font-black tracking-tighter text-white uppercase italic">
-                                        {formatDate(tournament.start_date)}
-                                    </div>
-                                </div>
-                                <p className="text-[10px] font-medium tracking-widest text-zinc-400 uppercase">
-                                    Tournament window:{' '}
-                                    {formatDateRange(
-                                        tournament.start_date,
-                                        tournament.end_date,
-                                    )}
-                                </p>
-                            </div>
+                        {/* Rank badge */}
+                        <div
+                            className={cn(
+                                'mb-8 flex items-center justify-center rounded-full font-black uppercase tracking-widest',
+                                tier.featured
+                                    ? 'h-14 w-14 bg-brand-gold text-black text-sm shadow-xl shadow-brand-gold/30'
+                                    : 'h-11 w-11 border border-white/10 bg-zinc-800 text-[11px] text-zinc-400',
+                            )}
+                        >
+                            {tier.rank}
                         </div>
+
+                        {/* Prize amount */}
+                        <div
+                            className={cn(
+                                'font-black tracking-tighter leading-none mb-3',
+                                tier.featured
+                                    ? 'text-5xl text-brand-gold'
+                                    : 'text-4xl text-white',
+                            )}
+                        >
+                            {tier.amount}
+                        </div>
+
+                        {/* Tier label */}
+                        <div className="text-[11px] font-black uppercase tracking-[0.25em] text-zinc-500">
+                            {tier.label}
+                        </div>
+
+                        {/* Centered glow for featured */}
+                        {tier.featured && (
+                            <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.1),transparent_70%)]" />
+                        )}
                     </div>
-                </div>
+                ))}
             </div>
 
-            <div className="animate-in fill-mode-forwards slide-in-from-bottom-8 fade-in flex flex-col items-center gap-12 duration-1000">
+            {/* ══════════════════════════════════════════
+                TEAM BENEFITS
+            ══════════════════════════════════════════ */}
+            <div className="float-in-3 grid grid-cols-1 gap-4 px-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 mb-20">
+                {benefits.map((benefit) => (
+                    <div
+                        key={benefit.label}
+                        className="flex items-center gap-4 rounded-2xl border border-white/5 bg-zinc-900/30 p-6 backdrop-blur-md transition-colors hover:border-brand-gold/20 group"
+                    >
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-800/80 text-xl shadow-inner group-hover:scale-110 transition-transform">
+                            {benefit.icon}
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-200 leading-tight">
+                            {benefit.label}
+                        </span>
+                    </div>
+                ))}
+            </div>
+
+
+
+            {/* ── Enlistment deadline strip ── */}
+            <div className="flex flex-col items-center gap-12">
                 <div className="w-full max-w-3xl rounded-[2rem] border border-brand-gold/20 bg-brand-gold/8 px-6 py-5 text-center shadow-[0_12px_40px_rgba(234,179,8,0.08)] backdrop-blur-sm sm:px-8 sm:text-left">
                     <span className="block text-[10px] font-black tracking-[0.4em] text-zinc-500 uppercase">
                         Enlistment Deadline
                     </span>
                     <span className="mt-2 block text-2xl font-black tracking-tighter break-words text-brand-gold italic tabular-nums sm:text-3xl">
-                        {formatDateRange(
-                            tournament.start_date,
-                            tournament.end_date,
-                        )}
+                        {formatDateRange(tournament.start_date, tournament.end_date)}
                     </span>
                     <span className="mt-2 block text-[9px] font-bold tracking-[0.2em] text-zinc-500 uppercase">
-                        Active tournament dates are managed from the admin
-                        settings panel.
+                        Active tournament dates are managed from the admin settings panel.
                     </span>
                 </div>
             </div>
@@ -122,11 +208,10 @@ export default function TournamentOverview({ tournament, fixedFee }: Props) {
     );
 }
 
-function formatDate(value?: string | null): string {
-    if (!value) {
-        return 'TBD';
-    }
+/* ── Helpers ── */
 
+function formatDate(value?: string | null): string {
+    if (!value) return 'TBD';
     return new Date(`${value}T00:00:00`).toLocaleDateString(undefined, {
         month: 'long',
         day: '2-digit',
@@ -134,21 +219,9 @@ function formatDate(value?: string | null): string {
     });
 }
 
-function formatDateRange(
-    startDate?: string | null,
-    endDate?: string | null,
-): string {
-    if (startDate && endDate) {
-        return `${formatDate(startDate)} - ${formatDate(endDate)}`;
-    }
-
-    if (endDate) {
-        return formatDate(endDate);
-    }
-
-    if (startDate) {
-        return formatDate(startDate);
-    }
-
+function formatDateRange(startDate?: string | null, endDate?: string | null): string {
+    if (startDate && endDate) return `${formatDate(startDate)} – ${formatDate(endDate)}`;
+    if (endDate) return formatDate(endDate);
+    if (startDate) return formatDate(startDate);
     return 'Dates to be announced';
 }

@@ -77,6 +77,15 @@ class DivisionBracketService
     }
 
     /**
+     * @param  Collection<int, Team>  $teams
+     * @return array<int, array<string, int|string>>
+     */
+    public function generateRandomized(Division $division, Tournament $tournament, Collection $teams): array
+    {
+        return $this->fallbackBracket($teams->shuffle()->values(), $tournament);
+    }
+
+    /**
      * @param  array<string, mixed>  $game
      * @param  Collection<int, Team>  $teams
      */

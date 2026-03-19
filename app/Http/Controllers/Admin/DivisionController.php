@@ -130,7 +130,10 @@ class DivisionController extends Controller
 
         $generatedGames = $divisionBracketService->generate($division, $division->tournament, $teams);
 
-        Game::query()->where('division_id', $division->id)->delete();
+        Game::query()
+            ->where('division_id', $division->id)
+            ->where('stage', 'elimination')
+            ->delete();
 
         foreach ($generatedGames as $generatedGame) {
             Game::query()->create([
@@ -147,8 +150,8 @@ class DivisionController extends Controller
         }
 
         return redirect()
-            ->route('admin.dashboard')
-            ->with('success', "Bracket schedule generated for {$division->name} and pushed to the dashboard.");
+            ->route('admin.divisions.show', $division)
+            ->with('success', "Bracket schedule generated for {$division->name}.");
     }
 
     public function apiIndex()

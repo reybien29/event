@@ -33,4 +33,9 @@ class Division extends Model
     {
         return $this->hasMany(Game::class);
     }
+
+    public function standings(): HasMany
+    {
+        return $this->hasMany(Standing::class);
+    }
 }

@@ -71,7 +71,7 @@ it('creates and updates divisions from division management', function () {
     expect((float) $division->registration_fee)->toBe(4200.0);
 });
 
-it('deletes teams from a division and reflects generated bracket schedules on the dashboard', function () {
+it('deletes teams from a division and keeps bracket details off the dashboard', function () {
     $admin = User::factory()->admin()->create();
     $tournament = Tournament::factory()->active()->create([
         'start_date' => '2026-06-01',
@@ -97,7 +97,7 @@ it('deletes teams from a division and reflects generated bracket schedules on th
 
     $this->actingAs($admin)
         ->post(route('admin.divisions.bracket.generate', $division))
-        ->assertRedirect(route('admin.dashboard'));
+        ->assertRedirect(route('admin.divisions.show', $division));
 
     expect(Game::query()->where('division_id', $division->id)->count())->toBe(2);
     expect(Game::query()->where('division_id', $division->id)->where('stage', 'elimination')->count())->toBe(2);
@@ -106,8 +106,6 @@ it('deletes teams from a division and reflects generated bracket schedules on th
         ->get(route('admin.dashboard'))
         ->assertInertia(fn (Assert $page) => $page
             ->component('admin/dashboard')
-            ->has('division_brackets', 1)
-            ->where('division_brackets.0.name', 'Mens Open')
-            ->where('division_brackets.0.games_count', 2)
-            ->has('division_brackets.0.games', 2));
+            ->has('recent_teams', 4)
+            ->missing('division_brackets'));
 });

@@ -56,7 +56,6 @@ export default function Welcome({ tournament }: Props) {
 
                 <TournamentOverview
                     tournament={activeTournament}
-                    fixedFee={fixedFee}
                 />
                 <Rules />
                 <RegistrationForm
