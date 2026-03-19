@@ -1,7 +1,7 @@
 import { Head } from '@inertiajs/react';
-import TournamentOverview from '../Components/Landing/TournamentOverview';
 import RegistrationForm from '../Components/Landing/RegistrationForm';
 import Rules from '../Components/Landing/Rules';
+import TournamentOverview from '../Components/Landing/TournamentOverview';
 import LandingLayout from '../Layouts/LandingLayout';
 
 interface Division {
@@ -51,11 +51,12 @@ export default function Welcome({ tournament }: Props) {
                 title={activeTournament.name || 'Premium Basketball Tournament'}
             />
 
-            <div className="relative mx-auto max-w-7xl space-y-28 overflow-x-clip px-6 py-20 lg:py-32">
+            <div className="relative mx-auto max-w-7xl space-y-8 overflow-x-clip py-4 lg:space-y-10">
                 <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-[800px] w-[min(100%,80rem)] rounded-full bg-brand-gold/5 blur-[150px]" />
 
                 <TournamentOverview
                     tournament={activeTournament}
+                    fixedFee={fixedFee}
                 />
                 <Rules />
                 <RegistrationForm

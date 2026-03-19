@@ -1,6 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
+import type { FormEvent } from 'react';
 import { update } from '@/actions/App/Http/Controllers/Admin/SettingController';
+import { BentoCard, BentoGrid } from '@/Components/ui/bento';
 import AdminLayout from '../../../Layouts/AdminLayout';
 
 interface Tournament {
@@ -33,128 +34,127 @@ export default function SettingsIndex({ tournament }: Props) {
         <AdminLayout title="System Settings">
             <Head title="Settings" />
 
-            <div className="grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
-                <div className="space-y-8">
-                    <form
-                        onSubmit={submit}
-                        className="rounded-2xl border border-white/5 bg-white/5 p-8 backdrop-blur-xl"
-                    >
-                        <div className="mb-6 flex items-start justify-between gap-4">
-                            <div>
-                                <h3 className="text-sm font-black tracking-widest text-brand-gold uppercase">
-                                    Active Tournament
-                                </h3>
-                                <p className="mt-2 text-xs font-semibold tracking-wider text-zinc-500 uppercase">
-                                    Landing page title, description, and
-                                    deadline copy now sync from this form.
-                                </p>
-                            </div>
-                            <span className="rounded-full border border-brand-gold/20 bg-brand-gold/10 px-3 py-1 text-[10px] font-black tracking-widest text-brand-gold uppercase">
-                                {tournament?.status ?? 'active'}
-                            </span>
-                        </div>
-
-                        <div className="space-y-6">
-                            <div>
-                                <label className="mb-2 block text-[10px] font-black tracking-widest text-zinc-500 uppercase">
-                                    Tournament Name
-                                </label>
-                                <input
-                                    type="text"
-                                    value={data.name}
-                                    onChange={(event) =>
-                                        setData('name', event.target.value)
-                                    }
-                                    className="h-12 w-full rounded-xl border border-white/5 bg-white/5 px-5 text-sm font-black tracking-tighter text-white uppercase transition-all outline-none focus:border-brand-gold"
-                                    placeholder="Elite Basketball League 2026"
-                                />
-                                {errors.name ? (
-                                    <p className="mt-2 text-xs font-bold text-red-400">
-                                        {errors.name}
+            <BentoGrid className="max-w-6xl items-start">
+                <div className="grid gap-6 md:col-span-12 xl:col-span-7">
+                    <BentoCard padding="lg" variant="default">
+                        <form onSubmit={submit}>
+                            <div className="mb-6 flex items-start justify-between gap-4">
+                                <div>
+                                    <h3 className="text-sm font-black tracking-widest text-brand-gold uppercase">
+                                        Active Tournament
+                                    </h3>
+                                    <p className="mt-2 text-xs font-semibold tracking-wider text-zinc-500 uppercase">
+                                        Landing page title, description, and
+                                        deadline copy now sync from this form.
                                     </p>
-                                ) : null}
+                                </div>
+                                <span className="rounded-full border border-brand-gold/20 bg-brand-gold/10 px-3 py-1 text-[10px] font-black tracking-widest text-brand-gold uppercase">
+                                    {tournament?.status ?? 'active'}
+                                </span>
                             </div>
 
-                            <div>
-                                <label className="mb-2 block text-[10px] font-black tracking-widest text-zinc-500 uppercase">
-                                    Description
-                                </label>
-                                <textarea
-                                    value={data.description}
-                                    onChange={(event) =>
-                                        setData(
-                                            'description',
-                                            event.target.value,
-                                        )
-                                    }
-                                    className="h-32 w-full rounded-xl border border-white/5 bg-white/5 px-5 py-4 text-sm leading-relaxed font-medium text-zinc-300 transition-all outline-none focus:border-brand-gold"
-                                    placeholder="Describe the active tournament experience."
-                                />
-                                {errors.description ? (
-                                    <p className="mt-2 text-xs font-bold text-red-400">
-                                        {errors.description}
-                                    </p>
-                                ) : null}
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-6">
                                 <div>
                                     <label className="mb-2 block text-[10px] font-black tracking-widest text-zinc-500 uppercase">
-                                        Start Date
+                                        Tournament Name
                                     </label>
                                     <input
-                                        type="date"
-                                        value={data.start_date}
+                                        type="text"
+                                        value={data.name}
                                         onChange={(event) =>
-                                            setData(
-                                                'start_date',
-                                                event.target.value,
-                                            )
+                                            setData('name', event.target.value)
                                         }
                                         className="h-12 w-full rounded-xl border border-white/5 bg-white/5 px-5 text-sm font-black tracking-tighter text-white uppercase transition-all outline-none focus:border-brand-gold"
+                                        placeholder="Elite Basketball League 2026"
                                     />
-                                    {errors.start_date ? (
+                                    {errors.name ? (
                                         <p className="mt-2 text-xs font-bold text-red-400">
-                                            {errors.start_date}
+                                            {errors.name}
                                         </p>
                                     ) : null}
                                 </div>
+
                                 <div>
                                     <label className="mb-2 block text-[10px] font-black tracking-widest text-zinc-500 uppercase">
-                                        End Date
+                                        Description
                                     </label>
-                                    <input
-                                        type="date"
-                                        value={data.end_date}
+                                    <textarea
+                                        value={data.description}
                                         onChange={(event) =>
                                             setData(
-                                                'end_date',
+                                                'description',
                                                 event.target.value,
                                             )
                                         }
-                                        className="h-12 w-full rounded-xl border border-white/5 bg-white/5 px-5 text-sm font-black tracking-tighter text-white uppercase transition-all outline-none focus:border-brand-gold"
+                                        className="h-32 w-full rounded-xl border border-white/5 bg-white/5 px-5 py-4 text-sm leading-relaxed font-medium text-zinc-300 transition-all outline-none focus:border-brand-gold"
+                                        placeholder="Describe the active tournament experience."
                                     />
-                                    {errors.end_date ? (
+                                    {errors.description ? (
                                         <p className="mt-2 text-xs font-bold text-red-400">
-                                            {errors.end_date}
+                                            {errors.description}
                                         </p>
                                     ) : null}
                                 </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="mb-2 block text-[10px] font-black tracking-widest text-zinc-500 uppercase">
+                                            Start Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={data.start_date}
+                                            onChange={(event) =>
+                                                setData(
+                                                    'start_date',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            className="h-12 w-full rounded-xl border border-white/5 bg-white/5 px-5 text-sm font-black tracking-tighter text-white uppercase transition-all outline-none focus:border-brand-gold"
+                                        />
+                                        {errors.start_date ? (
+                                            <p className="mt-2 text-xs font-bold text-red-400">
+                                                {errors.start_date}
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                    <div>
+                                        <label className="mb-2 block text-[10px] font-black tracking-widest text-zinc-500 uppercase">
+                                            End Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={data.end_date}
+                                            onChange={(event) =>
+                                                setData(
+                                                    'end_date',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            className="h-12 w-full rounded-xl border border-white/5 bg-white/5 px-5 text-sm font-black tracking-tighter text-white uppercase transition-all outline-none focus:border-brand-gold"
+                                        />
+                                        {errors.end_date ? (
+                                            <p className="mt-2 text-xs font-bold text-red-400">
+                                                {errors.end_date}
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={processing}
+                                    className="flex h-12 w-full items-center justify-center rounded-xl bg-brand-gold text-[10px] font-black tracking-[0.25em] text-black uppercase shadow-lg shadow-brand-gold/20 transition-all hover:bg-brand-gold-glow disabled:cursor-not-allowed disabled:opacity-70"
+                                >
+                                    {processing
+                                        ? 'Saving...'
+                                        : 'Save Active Tournament'}
+                                </button>
                             </div>
+                        </form>
+                    </BentoCard>
 
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="flex h-12 w-full items-center justify-center rounded-xl bg-brand-gold text-[10px] font-black tracking-[0.25em] text-black uppercase shadow-lg shadow-brand-gold/20 transition-all hover:bg-brand-gold-glow disabled:cursor-not-allowed disabled:opacity-70"
-                            >
-                                {processing
-                                    ? 'Saving...'
-                                    : 'Save Active Tournament'}
-                            </button>
-                        </div>
-                    </form>
-
-                    <div className="group rounded-2xl border border-white/5 bg-white/5 p-8 backdrop-blur-xl transition-all hover:bg-white/[0.08]">
+                    <BentoCard padding="lg" variant="subtle">
                         <h3 className="mb-6 text-sm font-black tracking-widest text-brand-gold uppercase">
                             Application Platform
                         </h3>
@@ -176,11 +176,11 @@ export default function SettingsIndex({ tournament }: Props) {
                             </div>
                             <div className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
                         </div>
-                    </div>
+                    </BentoCard>
                 </div>
 
-                <div className="space-y-8">
-                    <div className="rounded-2xl border border-white/5 bg-white/5 p-8 backdrop-blur-xl">
+                <div className="grid gap-6 md:col-span-12 xl:col-span-5">
+                    <BentoCard padding="lg" variant="accent" glow>
                         <h3 className="mb-6 text-sm font-black tracking-widest text-brand-gold uppercase">
                             Sync Preview
                         </h3>
@@ -201,9 +201,9 @@ export default function SettingsIndex({ tournament }: Props) {
                                 )}
                             />
                         </div>
-                    </div>
+                    </BentoCard>
 
-                    <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-8 backdrop-blur-xl">
+                    <BentoCard padding="lg" variant="danger">
                         <h3 className="mb-6 text-sm font-black tracking-widest text-red-400 uppercase">
                             System Note
                         </h3>
@@ -213,9 +213,9 @@ export default function SettingsIndex({ tournament }: Props) {
                             elimination brackets for every registered division
                             at once.
                         </p>
-                    </div>
+                    </BentoCard>
                 </div>
-            </div>
+            </BentoGrid>
         </AdminLayout>
     );
 }

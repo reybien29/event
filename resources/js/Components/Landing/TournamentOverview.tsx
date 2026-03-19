@@ -1,3 +1,11 @@
+import {
+    BentoCard,
+    BentoGrid,
+    BentoHeading,
+    BentoMetric,
+} from '@/Components/ui/bento';
+import { cn } from '@/lib/utils';
+
 interface Props {
     tournament: {
         name: string;
@@ -6,212 +14,300 @@ interface Props {
         start_date?: string | null;
         end_date?: string | null;
     };
+    fixedFee: string;
 }
 
-const cn = (...classes: (string | boolean | undefined | null)[]) =>
-    classes.filter(Boolean).join(' ');
-
-export default function TournamentOverview({ tournament }: Props) {
+export default function TournamentOverview({ tournament, fixedFee }: Props) {
     const podiumTiers = [
         {
-            rank: '2nd',
-            label: 'Runner Up',
-            amount: '₱120,000',
-            icon: '🥈',
-            order: 'order-1',
-            featured: false,
-        },
-        {
-            rank: '1st',
-            label: 'Champion',
+            rank: 'Champion',
             amount: '₱250,000',
-            icon: '🏆',
-            order: 'order-2',
+            badge: '1st',
             featured: true,
         },
         {
-            rank: '3rd',
-            label: '3rd Place',
+            rank: 'Runner Up',
+            amount: '₱120,000',
+            badge: '2nd',
+        },
+        {
+            rank: 'Third Place',
             amount: '₱80,000',
-            icon: '🥉',
-            order: 'order-3',
-            featured: false,
+            badge: '3rd',
         },
     ];
 
     const benefits = [
-        { icon: '👕', label: 'OFFICIAL LEAGUE JERSEY' },
-        { icon: '🏀', label: 'MIN. 5 GUARANTEED GAMES' },
-        { icon: '📋', label: 'DIVISION BRACKET SCHEDULING' },
-        { icon: '⚖️', label: 'PROFESSIONAL OFFICIATING' },
+        'Official league onboarding',
+        'Minimum 5 guaranteed matches',
+        'Division-based bracket scheduling',
+        'Professional officiating support',
     ];
 
+    const tournamentName = tournament.name || 'Elite Basketball League 2026';
+    const words = tournamentName.split(' ');
+    const midpoint = Math.ceil(words.length / 2);
+    const headlineStart = words.slice(0, midpoint).join(' ');
+    const headlineEnd = words.slice(midpoint).join(' ');
+
     return (
-        <div id="overview" className="relative">
+        <section id="overview" className="relative">
+            <BentoGrid className="items-stretch">
+                <BentoCard
+                    className="md:col-span-12 lg:col-span-7 lg:row-span-2"
+                    padding="lg"
+                    variant="accent"
+                    glow
+                >
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(188,166,115,0.18),transparent_32%)]" />
 
-            {/* ── Keyframe injection ── */}
-            <style>{`
-                @keyframes shimmer {
-                    0%   { background-position: 200% 0; }
-                    100% { background-position: -200% 0; }
-                }
-                @keyframes floatUp {
-                    0%   { opacity: 0; transform: translateY(32px); }
-                    100% { opacity: 1; transform: translateY(0); }
-                }
-                .shimmer-text {
-                    background: linear-gradient(
-                        90deg,
-                        #EAB308 0%,
-                        #FDE047 35%,
-                        #EAB308 50%,
-                        #CA8A04 65%,
-                        #EAB308 100%
-                    );
-                    background-size: 250% 100%;
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                    animation: shimmer 3.5s infinite linear;
-                }
-                .float-in { animation: floatUp 0.9s ease both; }
-                .float-in-2 { animation: floatUp 0.9s 0.15s ease both; }
-                .float-in-3 { animation: floatUp 0.9s 0.3s ease both; }
-                .podium-card-hover { transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
-                .podium-card-hover:hover { 
-                    transform: translateY(-8px);
-                    border-color: rgba(234, 179, 8, 0.4);
-                    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
-                }
-            `}</style>
+                    <div className="relative flex h-full flex-col justify-between gap-10">
+                        <div className="space-y-8">
+                            <BentoHeading
+                                eyebrow="Welcome To"
+                                title={
+                                    <>
+                                        <span className="block">
+                                            {headlineStart}
+                                        </span>
+                                        {headlineEnd ? (
+                                            <span className="block text-brand-gold italic">
+                                                {headlineEnd}
+                                            </span>
+                                        ) : null}
+                                    </>
+                                }
+                                description={
+                                    tournament.description ||
+                                    'The premier basketball league where legends are born and careers are made.'
+                                }
+                            />
 
-            {/* ══════════════════════════════════════════
-                PRIZE POOL HERO
-            ══════════════════════════════════════════ */}
-            <div className="float-in-2 relative mb-20 text-center">
-                <span className="mb-4 inline-block text-[11px] font-black tracking-[0.6em] text-brand-gold uppercase">
-                    Season 1 — Total Prize Pool
-                </span>
-
-                {/* Giant shimmer amount */}
-                <div className="relative mb-6 block">
-                    <span
-                        className="shimmer-text block text-[clamp(3rem,10vw,6rem)] font-black leading-none tracking-[-0.04em] uppercase"
-                    >
-                        {tournament.prize_pool || '₱500,000'}
-                    </span>
-                    {/* Subtle glow behind the text */}
-                    <div className="pointer-events-none absolute inset-0 -z-10 mx-auto w-1/2 blur-[100px] bg-brand-gold/15 rounded-full" />
-                </div>
-
-                <p className="text-[11px] font-bold tracking-[0.4em] text-zinc-500 uppercase">
-                    Up for grabs this season
-                </p>
-            </div>
-
-            {/* ══════════════════════════════════════════
-                PODIUM TIERS
-            ══════════════════════════════════════════ */}
-            <div className="float-in-3 mb-16 flex flex-col items-center justify-center gap-6 px-4 md:flex-row md:items-stretch lg:gap-10">
-                {podiumTiers.map((tier) => (
-                    <div
-                        key={tier.rank}
-                        className={cn(
-                            'podium-card-hover group relative flex w-full max-w-[320px] flex-col items-center overflow-hidden rounded-[2.5rem] border py-10 transition-all duration-500',
-                            tier.featured
-                                ? 'z-10 bg-zinc-900/40 border-brand-gold/40 scale-105 shadow-[0_30px_60px_-12px_rgba(0,0,0,0.4)] px-10'
-                                : 'bg-zinc-900/20 border-white/5 px-8 opacity-90 backdrop-blur-sm',
-                            tier.order,
-                        )}
-                    >
-                        {/* Top icon */}
-                        <div className={cn(
-                            'mb-8 text-5xl drop-shadow-2xl transition-transform duration-500 group-hover:scale-110',
-                            tier.featured ? 'text-6xl' : 'text-5xl'
-                        )}>
-                            {tier.icon}
+                            <div className="flex flex-wrap gap-3">
+                                <InfoPill>
+                                    {formatDateRange(
+                                        tournament.start_date,
+                                        tournament.end_date,
+                                    )}
+                                </InfoPill>
+                                <InfoPill accent>Season 1</InfoPill>
+                                <InfoPill>
+                                    High-intensity amateur hoops
+                                </InfoPill>
+                            </div>
                         </div>
 
-                        {/* Rank badge */}
-                        <div
-                            className={cn(
-                                'mb-8 flex items-center justify-center rounded-full font-black uppercase tracking-widest',
-                                tier.featured
-                                    ? 'h-14 w-14 bg-brand-gold text-black text-sm shadow-xl shadow-brand-gold/30'
-                                    : 'h-11 w-11 border border-white/10 bg-zinc-800 text-[11px] text-zinc-400',
-                            )}
-                        >
-                            {tier.rank}
-                        </div>
+                        <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
+                            <div className="space-y-5 rounded-[1.5rem] border border-white/10 bg-black/20 p-6">
+                                <div className="text-[10px] font-black tracking-[0.24em] text-zinc-500 uppercase">
+                                    Entry Protocol
+                                </div>
+                                <div className="text-4xl font-black tracking-[-0.05em] text-brand-gold sm:text-5xl">
+                                    {fixedFee}
+                                </div>
+                                <p className="max-w-md text-sm leading-relaxed text-zinc-300">
+                                    One team fee unlocks tournament access,
+                                    schedule placement, and administrative
+                                    processing.
+                                </p>
+                                <div className="flex flex-wrap gap-3">
+                                    <a
+                                        href="#register"
+                                        className="inline-flex h-12 items-center justify-center rounded-full bg-brand-gold px-6 text-[10px] font-black tracking-[0.24em] text-black uppercase transition-all hover:scale-[1.02] hover:bg-brand-gold-glow active:scale-[0.98]"
+                                    >
+                                        Register Now
+                                    </a>
+                                    <a
+                                        href="#rules"
+                                        className="inline-flex h-12 items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 text-[10px] font-black tracking-[0.24em] text-white uppercase transition-all hover:border-white/20 hover:bg-white/10"
+                                    >
+                                        View Rules
+                                    </a>
+                                </div>
+                            </div>
 
-                        {/* Prize amount */}
-                        <div
-                            className={cn(
-                                'font-black tracking-tighter leading-none mb-3',
-                                tier.featured
-                                    ? 'text-5xl text-brand-gold'
-                                    : 'text-4xl text-white',
-                            )}
-                        >
-                            {tier.amount}
+                            <div className="grid gap-4">
+                                <BentoMetric
+                                    label="Prize Pool"
+                                    value={tournament.prize_pool || '₱500,000'}
+                                    valueClassName="text-brand-gold text-4xl sm:text-5xl"
+                                    helper="Distributed across podium finishers."
+                                    className="h-full border-brand-gold/15 bg-brand-gold/6"
+                                />
+                                <BentoMetric
+                                    label="Tournament Window"
+                                    value={formatDate(tournament.start_date)}
+                                    helper={formatDateRange(
+                                        tournament.start_date,
+                                        tournament.end_date,
+                                    )}
+                                    className="h-full"
+                                />
+                            </div>
                         </div>
-
-                        {/* Tier label */}
-                        <div className="text-[11px] font-black uppercase tracking-[0.25em] text-zinc-500">
-                            {tier.label}
-                        </div>
-
-                        {/* Centered glow for featured */}
-                        {tier.featured && (
-                            <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.1),transparent_70%)]" />
-                        )}
                     </div>
-                ))}
-            </div>
+                </BentoCard>
 
-            {/* ══════════════════════════════════════════
-                TEAM BENEFITS
-            ══════════════════════════════════════════ */}
-            <div className="float-in-3 grid grid-cols-1 gap-4 px-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 mb-20">
-                {benefits.map((benefit) => (
-                    <div
-                        key={benefit.label}
-                        className="flex items-center gap-4 rounded-2xl border border-white/5 bg-zinc-900/30 p-6 backdrop-blur-md transition-colors hover:border-brand-gold/20 group"
-                    >
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zinc-800/80 text-xl shadow-inner group-hover:scale-110 transition-transform">
-                            {benefit.icon}
+                <BentoCard
+                    className="md:col-span-6 lg:col-span-5"
+                    padding="lg"
+                    variant="default"
+                >
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between gap-4">
+                            <div>
+                                <div className="text-[10px] font-black tracking-[0.24em] text-zinc-500 uppercase">
+                                    Prize Breakdown
+                                </div>
+                                <div className="mt-2 text-2xl font-black tracking-[-0.04em] text-white uppercase">
+                                    Podium Rewards
+                                </div>
+                            </div>
+                            <span className="rounded-full border border-brand-gold/20 bg-brand-gold/10 px-3 py-1 text-[10px] font-black tracking-[0.2em] text-brand-gold uppercase">
+                                Competitive Pool
+                            </span>
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-200 leading-tight">
-                            {benefit.label}
-                        </span>
+
+                        <div className="grid gap-4">
+                            {podiumTiers.map((tier) => (
+                                <div
+                                    key={tier.rank}
+                                    className={cn(
+                                        'rounded-[1.35rem] border p-5 transition-transform hover:-translate-y-1',
+                                        tier.featured
+                                            ? 'border-brand-gold/25 bg-brand-gold/8'
+                                            : 'border-white/8 bg-black/15',
+                                    )}
+                                >
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div>
+                                            <div className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase">
+                                                {tier.badge}
+                                            </div>
+                                            <div className="mt-2 text-lg font-black text-white uppercase">
+                                                {tier.rank}
+                                            </div>
+                                        </div>
+                                        <div
+                                            className={cn(
+                                                'text-right text-2xl font-black tracking-[-0.04em]',
+                                                tier.featured
+                                                    ? 'text-brand-gold'
+                                                    : 'text-white',
+                                            )}
+                                        >
+                                            {tier.amount}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                ))}
-            </div>
+                </BentoCard>
 
+                <BentoCard
+                    className="md:col-span-6 lg:col-span-5"
+                    padding="lg"
+                    variant="subtle"
+                    glow
+                >
+                    <div className="space-y-6">
+                        <div>
+                            <div className="text-[10px] font-black tracking-[0.24em] text-zinc-500 uppercase">
+                                Team Benefits
+                            </div>
+                            <div className="mt-2 text-2xl font-black tracking-[-0.04em] text-white uppercase">
+                                What Each Entry Unlocks
+                            </div>
+                        </div>
 
+                        <div className="grid gap-3">
+                            {benefits.map((benefit, index) => (
+                                <div
+                                    key={benefit}
+                                    className="flex items-center gap-4 rounded-[1.35rem] border border-white/8 bg-white/[0.03] p-4"
+                                >
+                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gold text-[10px] font-black text-black">
+                                        {index + 1}
+                                    </span>
+                                    <span className="text-sm font-semibold text-zinc-200">
+                                        {benefit}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </BentoCard>
 
-            {/* ── Enlistment deadline strip ── */}
-            <div className="flex flex-col items-center gap-12">
-                <div className="w-full max-w-3xl rounded-[2rem] border border-brand-gold/20 bg-brand-gold/8 px-6 py-5 text-center shadow-[0_12px_40px_rgba(234,179,8,0.08)] backdrop-blur-sm sm:px-8 sm:text-left">
-                    <span className="block text-[10px] font-black tracking-[0.4em] text-zinc-500 uppercase">
-                        Enlistment Deadline
-                    </span>
-                    <span className="mt-2 block text-2xl font-black tracking-tighter break-words text-brand-gold italic tabular-nums sm:text-3xl">
-                        {formatDateRange(tournament.start_date, tournament.end_date)}
-                    </span>
-                    <span className="mt-2 block text-[9px] font-bold tracking-[0.2em] text-zinc-500 uppercase">
-                        Active tournament dates are managed from the admin settings panel.
-                    </span>
-                </div>
-            </div>
-        </div>
+                <BentoCard
+                    className="md:col-span-12 lg:col-span-7"
+                    padding="lg"
+                    variant="default"
+                >
+                    <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+                        <div className="space-y-4">
+                            <div className="text-[10px] font-black tracking-[0.24em] text-zinc-500 uppercase">
+                                Tournament Window
+                            </div>
+                            <div className="text-3xl font-black tracking-[-0.04em] text-white uppercase sm:text-4xl">
+                                {formatDateRange(
+                                    tournament.start_date,
+                                    tournament.end_date,
+                                )}
+                            </div>
+                            <p className="max-w-xl text-sm leading-relaxed text-zinc-400">
+                                Active tournament dates and landing-page copy
+                                sync directly from the admin settings panel, so
+                                the public experience stays aligned with the
+                                control room.
+                            </p>
+                        </div>
+
+                        <div className="grid gap-4">
+                            <BentoMetric
+                                label="Registration Fee"
+                                value={fixedFee}
+                                valueClassName="text-brand-gold"
+                            />
+                            <BentoMetric
+                                label="Season Status"
+                                value="Open"
+                                helper="Registration is accepting new teams."
+                            />
+                        </div>
+                    </div>
+                </BentoCard>
+            </BentoGrid>
+        </section>
     );
 }
 
-/* ── Helpers ── */
+function InfoPill({
+    children,
+    accent = false,
+}: {
+    children: string;
+    accent?: boolean;
+}) {
+    return (
+        <span
+            className={cn(
+                'inline-flex items-center rounded-full border px-4 py-2 text-[10px] font-black tracking-[0.22em] uppercase',
+                accent
+                    ? 'border-brand-gold/25 bg-brand-gold/10 text-brand-gold'
+                    : 'border-white/10 bg-white/5 text-zinc-300',
+            )}
+        >
+            {children}
+        </span>
+    );
+}
 
 function formatDate(value?: string | null): string {
-    if (!value) return 'TBD';
+    if (!value) {
+        return 'TBD';
+    }
+
     return new Date(`${value}T00:00:00`).toLocaleDateString(undefined, {
         month: 'long',
         day: '2-digit',
@@ -219,9 +315,18 @@ function formatDate(value?: string | null): string {
     });
 }
 
-function formatDateRange(startDate?: string | null, endDate?: string | null): string {
-    if (startDate && endDate) return `${formatDate(startDate)} – ${formatDate(endDate)}`;
-    if (endDate) return formatDate(endDate);
-    if (startDate) return formatDate(startDate);
+function formatDateRange(startDate?: string | null, endDate?: string | null) {
+    if (startDate && endDate) {
+        return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    }
+
+    if (endDate) {
+        return formatDate(endDate);
+    }
+
+    if (startDate) {
+        return formatDate(startDate);
+    }
+
     return 'Dates to be announced';
 }

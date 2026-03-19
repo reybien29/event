@@ -4,6 +4,7 @@ import {
     publish as publishStats,
     update as updateStats,
 } from '@/actions/App/Http/Controllers/Admin/StatsController';
+import { BentoCard } from '@/Components/ui/bento';
 import AdminLayout from '../../../Layouts/AdminLayout';
 
 interface TournamentInfo {
@@ -65,7 +66,7 @@ export default function StatsIndex({ divisions, facebook_configured }: Props) {
         <AdminLayout title="Stats Management">
             <Head title="Stats Management" />
 
-            <div className="mb-8 rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl">
+            <BentoCard className="mb-8" padding="lg" variant="accent" glow>
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <h2 className="text-xl font-black tracking-tight text-white uppercase">
@@ -85,7 +86,7 @@ export default function StatsIndex({ divisions, facebook_configured }: Props) {
                             : 'Facebook Not Configured'}
                     </span>
                 </div>
-            </div>
+            </BentoCard>
 
             {divisions.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-white/10 px-6 py-16 text-center text-xs font-semibold tracking-wider text-zinc-500 uppercase">
@@ -163,6 +164,7 @@ function DivisionStatsCard({
 
         if (isDirty) {
             saveStandings(publishNow);
+
             return;
         }
 
@@ -178,7 +180,7 @@ function DivisionStatsCard({
             onSubmit={handleSubmit}
             className="grid grid-cols-1 gap-6 xl:grid-cols-[1.7fr_1fr]"
         >
-            <div className="rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl">
+            <BentoCard padding="md" variant="default">
                 <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h3 className="text-sm font-black tracking-widest text-brand-gold uppercase">
@@ -342,10 +344,10 @@ function DivisionStatsCard({
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </BentoCard>
 
             <div className="space-y-6">
-                <div className="rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl">
+                <BentoCard padding="md" variant="accent" glow>
                     <div className="flex items-center justify-between gap-4">
                         <h4 className="text-sm font-black tracking-widest text-brand-gold uppercase">
                             Facebook Preview
@@ -361,9 +363,9 @@ function DivisionStatsCard({
                     <pre className="mt-4 max-h-[420px] overflow-y-auto rounded-2xl border border-white/5 bg-[#0c1628] p-4 text-xs leading-6 font-medium whitespace-pre-wrap text-zinc-200">
                         {livePreview}
                     </pre>
-                </div>
+                </BentoCard>
 
-                <div className="rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl">
+                <BentoCard padding="md" variant="subtle">
                     <h4 className="text-sm font-black tracking-widest text-brand-gold uppercase">
                         Posting Notes
                     </h4>
@@ -378,7 +380,7 @@ function DivisionStatsCard({
                             Graph API version.
                         </p>
                     </div>
-                </div>
+                </BentoCard>
             </div>
         </form>
     );

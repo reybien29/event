@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { BentoCard, BentoGrid } from '@/Components/ui/bento';
 
 interface Props {
     children: ReactNode;
@@ -9,18 +10,19 @@ interface Props {
 
 export default function LandingLayout({
     children,
-    brandColor = '#EAB308',
+    brandColor = '#bca673',
     logo,
 }: Props) {
     return (
         <div
-            className="relative isolate w-full overflow-x-clip bg-[radial-gradient(circle_at_top,rgba(234,179,8,0.15),transparent_32%),linear-gradient(180deg,#0b1220_0%,#0f172a_48%,#111827_100%)] font-sans text-white antialiased selection:bg-brand-gold selection:text-black"
+            className="relative isolate min-h-screen w-full overflow-x-clip bg-[radial-gradient(circle_at_top,rgba(188,166,115,0.16),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.1),transparent_26%),linear-gradient(180deg,#0a0a0a_0%,#0a0a0a_38%,#18181b_100%)] font-sans text-white antialiased selection:bg-brand-gold selection:text-black"
             style={{ ['--landing-brand' as string]: brandColor }}
         >
-            <div className="pointer-events-none fixed inset-x-0 top-0 z-0 mx-auto h-[500px] w-[min(100%,90rem)] bg-gradient-to-b from-brand-gold/10 to-transparent opacity-50 blur-[120px]" />
+            <div className="pointer-events-none fixed inset-x-0 top-0 z-0 mx-auto h-[500px] w-[min(100%,92rem)] bg-gradient-to-b from-brand-gold/10 to-transparent opacity-60 blur-[120px]" />
+            <div className="pointer-events-none absolute inset-x-0 top-40 z-0 mx-auto h-[42rem] w-[min(100%,72rem)] rounded-full bg-white/4 blur-[140px]" />
 
-            <nav className="fixed top-0 right-0 left-0 z-50 border-b border-brand-gold/10 bg-[#0b1220]/75 px-6 py-4 backdrop-blur-xl">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 sm:gap-4">
+            <nav className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-full border border-white/10 bg-[#09090b]/78 px-4 py-3 shadow-[0_18px_50px_rgba(2,6,23,0.45)] backdrop-blur-2xl sm:px-6">
                     <Link
                         href="/"
                         className="group flex min-w-0 items-center gap-3"
@@ -86,62 +88,88 @@ export default function LandingLayout({
                 </div>
             </nav>
 
-            <main className="relative z-10 overflow-x-clip pt-20">
+            <main className="relative z-10 overflow-x-clip px-4 pt-28 pb-10 sm:px-6 sm:pt-32">
                 {children}
             </main>
 
-            <footer className="relative z-10 border-t border-brand-gold/10 bg-[#0b1220]/55 py-12 backdrop-blur-sm">
-                <div className="mx-auto max-w-7xl px-6">
-                    <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-                        <div className="max-w-xs text-center md:text-left">
-                            <span className="mb-4 block text-xl font-black tracking-tighter uppercase">
-                                ELITE{' '}
-                                <span className="text-brand-gold">B-BALL</span>
-                            </span>
-                            <p className="text-sm leading-relaxed text-zinc-400">
-                                Premium tournament orchestration with dynamic
-                                divisions, clean registration, and
-                                admin-controlled bracket scheduling.
-                            </p>
-                        </div>
-                        <div className="flex w-full flex-col items-center gap-8 text-center sm:w-auto sm:flex-row sm:items-start sm:text-left">
-                            <div className="flex flex-col gap-2">
-                                <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
+            <footer className="relative z-10 px-4 pb-8 sm:px-6">
+                <div className="mx-auto max-w-7xl">
+                    <BentoGrid className="items-stretch">
+                        <BentoCard
+                            className="md:col-span-6 lg:col-span-7"
+                            padding="lg"
+                            glow
+                        >
+                            <div className="space-y-5">
+                                <span className="text-[10px] font-black tracking-[0.3em] text-brand-gold uppercase">
+                                    Elite B-Ball
+                                </span>
+                                <div className="text-3xl font-black tracking-[-0.04em] uppercase">
+                                    Premium tournament orchestration for a
+                                    sharper game-day experience.
+                                </div>
+                                <p className="max-w-2xl text-sm leading-relaxed text-zinc-400">
+                                    Registration, divisions, standings, and
+                                    bracket scheduling stay aligned inside one
+                                    polished system.
+                                </p>
+                            </div>
+                        </BentoCard>
+
+                        <BentoCard
+                            className="md:col-span-3 lg:col-span-2"
+                            padding="lg"
+                            variant="subtle"
+                        >
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black tracking-[0.24em] text-zinc-500 uppercase">
                                     Competition
                                 </span>
                                 <a
                                     href="#overview"
-                                    className="text-sm text-zinc-300 transition-colors hover:text-brand-gold"
+                                    className="block text-sm text-zinc-200 transition-colors hover:text-brand-gold"
                                 >
                                     Tournament Info
                                 </a>
                                 <a
                                     href="#rules"
-                                    className="text-sm text-zinc-300 transition-colors hover:text-brand-gold"
+                                    className="block text-sm text-zinc-200 transition-colors hover:text-brand-gold"
                                 >
                                     Rules
                                 </a>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
-                                    Platform
-                                </span>
                                 <a
                                     href="#register"
-                                    className="text-sm text-zinc-300 transition-colors hover:text-brand-gold"
+                                    className="block text-sm text-zinc-200 transition-colors hover:text-brand-gold"
                                 >
                                     Registration
                                 </a>
+                            </div>
+                        </BentoCard>
+
+                        <BentoCard
+                            className="md:col-span-3"
+                            padding="lg"
+                            variant="subtle"
+                        >
+                            <div className="space-y-3">
+                                <span className="text-[10px] font-black tracking-[0.24em] text-zinc-500 uppercase">
+                                    Platform
+                                </span>
                                 <Link
                                     href="/admin/dashboard"
-                                    className="text-sm text-zinc-300 transition-colors hover:text-brand-gold"
+                                    className="block text-sm text-zinc-200 transition-colors hover:text-brand-gold"
                                 >
                                     Admin Console
                                 </Link>
+                                <p className="text-sm leading-relaxed text-zinc-400">
+                                    Live tournament management with a calmer,
+                                    clearer control surface.
+                                </p>
                             </div>
-                        </div>
-                    </div>
-                    <div className="mt-12 text-center text-[10px] font-medium tracking-[0.2em] text-zinc-600 uppercase">
+                        </BentoCard>
+                    </BentoGrid>
+
+                    <div className="mt-6 text-center text-[10px] font-medium tracking-[0.2em] text-zinc-600 uppercase">
                         © 2026 Elite Management System • Pure Basketball Passion
                     </div>
                 </div>
