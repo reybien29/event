@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import LandingLayout from '../../Layouts/LandingLayout';
 import { useState, useEffect } from 'react';
-import { Division } from '../../../types';
+import { Division } from '@/types';
 import { cn } from '../../lib/utils';
 import { store } from '@/actions/App/Http/Controllers/RegistrationController';
 
@@ -337,3 +337,4 @@ const { data, setData, post, processing, errors } = useForm({
         </LandingLayout>
     );
 }
+

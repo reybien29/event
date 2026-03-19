@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Division;
+use App\Models\Tournament;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,9 @@ class DivisionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'tournament_id' => Tournament::factory(),
+            'name' => fake()->randomElement(['Under 16', 'Under 18', 'Mens Open', 'Womens Open']),
+            'registration_fee' => fake()->randomFloat(2, 1500, 5000),
         ];
     }
 }

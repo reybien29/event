@@ -26,6 +26,7 @@ class AuthController extends Controller
 
             if (! Auth::user()->is_admin) {
                 Auth::logout();
+
                 return back()->withErrors(['email' => 'Unauthorized access.']);
             }
 
