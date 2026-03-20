@@ -24,7 +24,6 @@ class RegistrationRequest extends FormRequest
     {
         return [
             'team_name' => 'required|string|max:255',
-            'division_id' => 'required|exists:divisions,id',
             'coach_name' => 'required|string|max:255',
             'contact_number' => 'required|string|max:20',
             'players' => 'required|array|min:5|max:12', // Critical: 5–12 dynamic player inputs

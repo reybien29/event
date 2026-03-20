@@ -6,7 +6,6 @@ interface Game {
     team_b: { name: string; logo?: string };
     team_a_score: number;
     team_b_score: number;
-    division: { name: string };
     status: string;
     scheduled_at: string;
 }
@@ -50,9 +49,7 @@ export default function Scoreboard({ games }: Props) {
                             className="group relative rounded-2xl border border-white/5 bg-zinc-900/50 p-8 backdrop-blur-3xl transition-all hover:border-brand-gold/30 hover:bg-brand-gold/[0.02]"
                         >
                             <div className="mb-8 flex items-center justify-between">
-                                <span className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">
-                                    {game.division.name}
-                                </span>
+
                                 <span
                                     className={cn(
                                         'rounded-full px-2 py-0.5 text-[9px] font-black tracking-tighter uppercase',

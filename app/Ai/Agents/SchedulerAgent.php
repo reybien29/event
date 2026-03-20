@@ -21,7 +21,7 @@ class SchedulerAgent implements Agent, HasStructuredOutput
         return [
             'games' => $schema->array()->items(
                 $schema->object([
-                    'division_id' => $schema->integer()->required(),
+                    'tournament_id' => $schema->integer()->required(),
                     'team_a_id' => $schema->integer()->required(),
                     'team_b_id' => $schema->integer()->required(),
                     'scheduled_at' => $schema->string()->format('date-time')->required(),

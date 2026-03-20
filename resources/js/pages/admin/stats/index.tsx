@@ -23,7 +23,7 @@ interface TeamStanding {
     played: number;
 }
 
-interface DivisionTeam {
+interface TournamentTeam {
     id: number;
     name: string;
     coach_name: string;
@@ -31,17 +31,18 @@ interface DivisionTeam {
     standing: TeamStanding;
 }
 
-interface Division {
+interface Tournament {
     id: number;
     name: string;
     teams_count: number;
-    tournament: TournamentInfo;
-    teams: DivisionTeam[];
+    start_date: string | null;
+    end_date: string | null;
+    teams: TournamentTeam[];
     facebook_preview: string;
 }
 
 interface Props {
-    divisions: Division[];
+    tournaments: Tournament[];
     facebook_configured: boolean;
 }
 
@@ -61,7 +62,7 @@ type FormState = {
 
 type EditableField = Exclude<keyof FormStanding, 'team_id'>;
 
-export default function StatsIndex({ divisions, facebook_configured }: Props) {
+export default function StatsIndex({ tournaments, facebook_configured }: Props) {
     return (
         <AdminLayout title="Stats Management">
             <Head title="Stats Management" />
@@ -73,7 +74,7 @@ export default function StatsIndex({ divisions, facebook_configured }: Props) {
                             Manual Standings Control
                         </h2>
                         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-400">
-                            Update division standings manually, review the
+                            Update tournament standings manually, review the
                             generated Facebook copy, then publish the current
                             table to the official page when you are ready.
                         </p>
@@ -88,17 +89,17 @@ export default function StatsIndex({ divisions, facebook_configured }: Props) {
                 </div>
             </BentoCard>
 
-            {divisions.length === 0 ? (
+            {tournaments.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-white/10 px-6 py-16 text-center text-xs font-semibold tracking-wider text-zinc-500 uppercase">
-                    No divisions with registered teams are available for
+                    No tournaments with registered teams are available for
                     standings management yet.
                 </div>
             ) : (
                 <div className="space-y-8">
-                    {divisions.map((division) => (
-                        <DivisionStatsCard
-                            key={division.id}
-                            division={division}
+                    {tournaments.map((tournament) => (
+                        <TournamentStatsCard
+                            key={tournament.id}
+                            tournament={tournament}
                             facebookConfigured={facebook_configured}
                         />
                     ))}
@@ -108,16 +109,16 @@ export default function StatsIndex({ divisions, facebook_configured }: Props) {
     );
 }
 
-function DivisionStatsCard({
-    division,
+function TournamentStatsCard({
+    tournament,
     facebookConfigured,
 }: {
-    division: Division;
+    tournament: Tournament;
     facebookConfigured: boolean;
 }) {
     const { data, setData, put, post, processing, errors, isDirty } =
         useForm<FormState>({
-            standings: division.teams.map((team) => ({
+            standings: tournament.teams.map((team) => ({
                 team_id: team.id,
                 group_name: team.standing.group_name ?? '',
                 wins: team.standing.wins.toString(),
@@ -144,7 +145,7 @@ function DivisionStatsCard({
     };
 
     const saveStandings = (onSuccess?: () => void) => {
-        put(updateStats.url(division.id), {
+        put(updateStats.url({ tournament: tournament.id }), {
             preserveScroll: true,
             onSuccess,
         });
@@ -157,7 +158,7 @@ function DivisionStatsCard({
 
     const handlePublish = () => {
         const publishNow = () => {
-            post(publishStats.url(division.id), {
+            post(publishStats.url({ tournament: tournament.id }), {
                 preserveScroll: true,
             });
         };
@@ -172,8 +173,8 @@ function DivisionStatsCard({
     };
 
     const livePreview =
-        buildFacebookPreview(division, data.standings) ||
-        division.facebook_preview;
+        buildFacebookPreview(tournament, data.standings) ||
+        tournament.facebook_preview;
 
     return (
         <form
@@ -184,11 +185,11 @@ function DivisionStatsCard({
                 <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <h3 className="text-sm font-black tracking-widest text-brand-gold uppercase">
-                            {division.name}
+                            {tournament.name}
                         </h3>
                         <p className="mt-2 text-xs font-semibold tracking-wider text-zinc-500 uppercase">
-                            {division.teams_count} teams •{' '}
-                            {formatTournamentWindow(division.tournament)}
+                            {tournament.teams_count} teams •{' '}
+                            {formatTournamentWindow(tournament)}
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-3">
@@ -230,7 +231,7 @@ function DivisionStatsCard({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {division.teams.map((team, index) => {
+                            {tournament.teams.map((team, index) => {
                                 const standing = data.standings[index];
                                 const played =
                                     toNumber(standing.wins) +
@@ -421,10 +422,10 @@ function getRowError(
 }
 
 function buildFacebookPreview(
-    division: Division,
+    tournament: Tournament,
     standings: FormStanding[],
 ): string {
-    const rows = division.teams.map((team) => {
+    const rows = tournament.teams.map((team) => {
         const formStanding = standings.find(
             (standing) => standing.team_id === team.id,
         );
@@ -455,13 +456,10 @@ function buildFacebookPreview(
         );
     });
 
-    const heading = division.tournament.name
-        ? `${division.tournament.name} Standings Update`
-        : 'Standings Update';
+    const heading = `${tournament.name} Standings Update`;
 
     return [
         heading,
-        `Division: ${division.name}`,
         '',
         ...rows.map((row, index) => {
             const record =

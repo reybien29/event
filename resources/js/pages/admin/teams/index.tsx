@@ -1,12 +1,7 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, router, usePoll } from '@inertiajs/react';
 import { generateBrackets } from '@/actions/App/Http/Controllers/Admin/TeamController';
 import { BentoCard, BentoGrid } from '@/Components/ui/bento';
 import AdminLayout from '../../../Layouts/AdminLayout';
-
-interface Division {
-    id: number;
-    name: string;
-}
 
 interface Team {
     id: number;
@@ -14,7 +9,6 @@ interface Team {
     coach_name: string;
     contact_number: string;
     status: string;
-    division?: Division;
 }
 
 interface Props {
@@ -22,10 +16,14 @@ interface Props {
 }
 
 export default function TeamsIndex({ teams }: Props) {
+    usePoll(3000, {
+        only: ['teams'],
+    });
+
     const handleGenerateBrackets = () => {
         if (
             !window.confirm(
-                'Generate randomized elimination brackets for all registered teams with assigned divisions? Existing elimination brackets will be replaced.',
+                'Generate randomized elimination brackets for all registered teams? Existing elimination brackets will be replaced.',
             )
         ) {
             return;
@@ -80,8 +78,7 @@ export default function TeamsIndex({ teams }: Props) {
                             Registered Teams
                         </h3>
                         <p className="text-[11px] font-medium tracking-tight text-zinc-500 uppercase">
-                            Live roster with coach contacts, division
-                            assignment, and registration status.
+                            Live roster with coach contacts and registration status.
                         </p>
                     </div>
 
@@ -92,9 +89,7 @@ export default function TeamsIndex({ teams }: Props) {
                                     <th className="px-4 pb-4 font-black">
                                         Team
                                     </th>
-                                    <th className="px-4 pb-4 font-black">
-                                        Division
-                                    </th>
+
                                     <th className="px-4 pb-4 font-black">
                                         Coach
                                     </th>
@@ -123,10 +118,7 @@ export default function TeamsIndex({ teams }: Props) {
                                                     .padStart(4, '0')}
                                             </div>
                                         </td>
-                                        <td className="px-4 py-5 text-xs font-black tracking-widest text-brand-gold/80 uppercase">
-                                            {team.division?.name ||
-                                                'Unassigned'}
-                                        </td>
+
                                         <td className="px-4 py-5 text-xs font-bold text-zinc-300 uppercase">
                                             {team.coach_name}
                                         </td>

@@ -1,19 +1,12 @@
 import { Head, useForm } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
-import { store } from '@/actions/App/Http/Controllers/RegistrationController';
-import type { Division } from '@/types';
+import { useState } from 'react';
 import LandingLayout from '../../Layouts/LandingLayout';
 import { cn } from '../../lib/utils';
 
-interface Props {
-    divisions: Division[];
-}
-
-export default function Create({ divisions }: Props) {
+export default function Create() {
     const [step, setStep] = useState(1);
     const { data, setData, post, processing, errors } = useForm({
         team_name: '',
-        division_id: '',
         coach_name: '',
         contact_number: '',
         players: [
@@ -22,14 +15,7 @@ export default function Create({ divisions }: Props) {
         agreed_to_terms: false,
     });
 
-    const [finalDivisions, setFinalDivisions] = useState<Division[]>(divisions);
 
-    useEffect(() => {
-        fetch('/api/divisions')
-            .then((res) => res.json())
-            .then((data) => setFinalDivisions(data))
-            .catch((err) => console.error('Failed to fetch divisions', err));
-    }, []);
 
     const addPlayer = () => {
         if (data.players.length < 12) {
@@ -60,7 +46,7 @@ export default function Create({ divisions }: Props) {
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(store().url);
+        post('/register');
     };
 
     const progress = (step / 3) * 100;
@@ -124,38 +110,7 @@ export default function Create({ divisions }: Props) {
                                     )}
                                 </div>
 
-                                <div>
-                                    <label className="mb-2 block text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
-                                        Select Division
-                                    </label>
-                                    <select
-                                        value={data.division_id}
-                                        onChange={(e) =>
-                                            setData(
-                                                'division_id',
-                                                e.target.value,
-                                            )
-                                        }
-                                        className="w-full rounded border border-white/5 bg-zinc-900/50 p-4 text-white outline-none focus:border-brand-gold/50"
-                                    >
-                                        <option value="">
-                                            Choose a division
-                                        </option>
-                                        {finalDivisions.map((d) => (
-                                            <option key={d.id} value={d.id}>
-                                                {d.name}
-                                                {d.registration_fee
-                                                    ? ` (₱${d.registration_fee})`
-                                                    : ''}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.division_id && (
-                                        <p className="mt-2 text-xs font-bold text-red-500">
-                                            {errors.division_id}
-                                        </p>
-                                    )}
-                                </div>
+
 
                                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                                     <div>

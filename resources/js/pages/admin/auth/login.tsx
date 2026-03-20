@@ -40,7 +40,7 @@ export default function Login() {
                                 </h1>
                                 <p className="mt-3 text-sm leading-relaxed text-zinc-300">
                                     Secure access for tournament operations,
-                                    division control, standings updates, and
+                                    tournament configuration, standings updates, and
                                     schedule oversight.
                                 </p>
                             </div>

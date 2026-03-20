@@ -1,7 +1,7 @@
 interface Standing {
     id: number;
     team: { name: string };
-    division: { name: string };
+    tournament: { name: string };
     played: number;
     won: number;
     lost: number;
@@ -17,16 +17,16 @@ export default function Standings({ standings }: Props) {
         return null;
     }
 
-    // Group standings by division
-    const divisions = standings.reduce(
+    // Group standings by tournament
+    const tournaments = standings.reduce(
         (acc, curr) => {
-            const divName = curr.division.name;
+            const tourName = curr.tournament?.name || 'Tournament';
 
-            if (!acc[divName]) {
-                acc[divName] = [];
+            if (!acc[tourName]) {
+                acc[tourName] = [];
             }
 
-            acc[divName].push(curr);
+            acc[tourName].push(curr);
 
             return acc;
         },
@@ -39,7 +39,7 @@ export default function Standings({ standings }: Props) {
                 <div className="mb-16 flex items-center justify-between">
                     <div>
                         <span className="text-[10px] font-bold tracking-[0.3em] text-brand-gold uppercase">
-                            Division Leaders
+                            Tournament Leaders
                         </span>
                         <h2 className="mt-2 text-4xl font-black tracking-tighter uppercase sm:text-6xl">
                             League{' '}
@@ -51,10 +51,10 @@ export default function Standings({ standings }: Props) {
                 </div>
 
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-                    {Object.entries(divisions).map(([division, items]) => (
-                        <div key={division}>
+                    {Object.entries(tournaments).map(([tournament, items]) => (
+                        <div key={tournament}>
                             <h3 className="mb-6 flex items-center gap-4 text-xs font-black tracking-widest text-zinc-500 uppercase after:h-[1px] after:flex-1 after:bg-white/10">
-                                {division}
+                                {tournament}
                             </h3>
 
                             <div className="overflow-hidden rounded-2xl border border-white/5 bg-zinc-900/50 p-4 shadow-2xl backdrop-blur-3xl">

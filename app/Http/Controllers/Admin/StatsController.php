@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\UpdateDivisionStandingsRequest;
-use App\Models\Division;
 use App\Models\Standing;
 use App\Models\Team;
+use App\Models\Tournament;
 use App\Services\StandingsFacebookPublisher;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -18,10 +18,9 @@ class StatsController extends Controller
 {
     public function index(StandingsFacebookPublisher $standingsFacebookPublisher): Response
     {
-        $divisions = Division::query()
+        $tournaments = Tournament::query()
             ->withCount('teams')
             ->with([
-                'tournament',
                 'teams' => fn ($query) => $query
                     ->with('standings')
                     ->orderBy('name'),
@@ -29,17 +28,14 @@ class StatsController extends Controller
             ->whereHas('teams')
             ->orderBy('name')
             ->get()
-            ->map(function (Division $division) use ($standingsFacebookPublisher): array {
+            ->map(function (Tournament $tournament) use ($standingsFacebookPublisher): array {
                 return [
-                    'id' => $division->id,
-                    'name' => $division->name,
-                    'teams_count' => $division->teams_count,
-                    'tournament' => [
-                        'name' => $division->tournament?->name,
-                        'start_date' => $division->tournament?->start_date,
-                        'end_date' => $division->tournament?->end_date,
-                    ],
-                    'teams' => $division->teams->map(function (Team $team): array {
+                    'id' => $tournament->id,
+                    'name' => $tournament->name,
+                    'teams_count' => $tournament->teams_count,
+                    'start_date' => $tournament->start_date,
+                    'end_date' => $tournament->end_date,
+                    'teams' => $tournament->teams->map(function (Team $team): array {
                         $standing = $team->standings;
                         $wins = (int) ($standing?->wins ?? 0);
                         $losses = (int) ($standing?->losses ?? 0);
@@ -61,32 +57,43 @@ class StatsController extends Controller
                             ],
                         ];
                     })->values(),
-                    'facebook_preview' => $standingsFacebookPublisher->buildDivisionMessage($division),
+                    'facebook_preview' => rtrim($standingsFacebookPublisher->buildTournamentMessage($tournament)),
                 ];
             })
             ->values();
 
         return Inertia::render('admin/stats/index', [
-            'divisions' => $divisions,
+            'tournaments' => $tournaments,
             'facebook_configured' => (bool) config('services.facebook.page_id')
                 && (bool) config('services.facebook.page_access_token'),
         ]);
     }
 
-    public function update(UpdateDivisionStandingsRequest $request, Division $division): RedirectResponse
+    public function update(Request $request, Tournament $tournament): RedirectResponse
     {
-        $standings = $request->validated('standings');
+        $validated = $request->validate([
+            'standings' => ['required', 'array'],
+            'standings.*.team_id' => ['required', 'integer', 'exists:teams,id'],
+            'standings.*.group_name' => ['nullable', 'string', 'max:255'],
+            'standings.*.wins' => ['required', 'integer', 'min:0'],
+            'standings.*.losses' => ['required', 'integer', 'min:0'],
+            'standings.*.draws' => ['required', 'integer', 'min:0'],
+            'standings.*.points' => ['required', 'integer', 'min:0'],
+            'standings.*.quotient' => ['required', 'numeric'],
+        ]);
+
+        $standings = $validated['standings'];
         $teamIds = collect($standings)->pluck('team_id');
-        $matchingTeamIds = $division->teams()->whereIn('id', $teamIds)->pluck('id');
+        $matchingTeamIds = $tournament->teams()->whereIn('id', $teamIds)->pluck('id');
 
         abort_unless($matchingTeamIds->count() === $teamIds->count(), 404);
 
-        DB::transaction(function () use ($division, $standings): void {
+        DB::transaction(function () use ($tournament, $standings): void {
             foreach ($standings as $standingData) {
                 Standing::query()->updateOrCreate(
                     [
                         'team_id' => $standingData['team_id'],
-                        'division_id' => $division->id,
+                        'tournament_id' => $tournament->id,
                     ],
                     [
                         'group_name' => $standingData['group_name'] ?: null,
@@ -102,13 +109,13 @@ class StatsController extends Controller
 
         return redirect()
             ->route('admin.stats.index')
-            ->with('success', "Standings updated for {$division->name}.");
+            ->with('success', "Standings updated for {$tournament->name}.");
     }
 
-    public function publish(Division $division, StandingsFacebookPublisher $standingsFacebookPublisher): RedirectResponse
+    public function publish(Tournament $tournament, StandingsFacebookPublisher $standingsFacebookPublisher): RedirectResponse
     {
         try {
-            $standingsFacebookPublisher->publishDivisionStandings($division);
+            $standingsFacebookPublisher->publishTournamentStandings($tournament);
         } catch (RuntimeException $exception) {
             return redirect()
                 ->route('admin.stats.index')
@@ -117,6 +124,6 @@ class StatsController extends Controller
 
         return redirect()
             ->route('admin.stats.index')
-            ->with('success', "Standings for {$division->name} were posted to Facebook.");
+            ->with('success', "Standings for {$tournament->name} were posted to Facebook.");
     }
 }

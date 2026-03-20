@@ -24,11 +24,5 @@ class TournamentSeeder extends Seeder
             'status' => 'active',
         ]);
 
-        $tournament->divisions()->createMany([
-            ['name' => 'Mens Open', 'registration_fee' => 3500],
-            ['name' => 'Under-21 Elite', 'registration_fee' => 3500],
-            ['name' => 'Junior Pro (U18)', 'registration_fee' => 3500],
-            ['name' => 'Legends (35+)', 'registration_fee' => 3500],
-        ]);
     }
 }

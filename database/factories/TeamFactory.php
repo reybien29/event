@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Division;
+use App\Models\Tournament;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,7 +19,7 @@ class TeamFactory extends Factory
     public function definition(): array
     {
         return [
-            'division_id' => Division::factory(),
+            'tournament_id' => Tournament::factory(),
             'name' => fake()->city().' Ballers',
             'coach_name' => fake()->name(),
             'contact_number' => fake()->numerify('09#########'),

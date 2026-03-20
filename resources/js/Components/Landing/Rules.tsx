@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { BentoCard, BentoGrid, BentoHeading } from '@/Components/ui/bento';
 import { cn } from '@/lib/utils';
 
 interface RuleCategory {
@@ -16,8 +15,7 @@ export default function Rules() {
             title: 'Player Eligibility',
             description: 'Strict age and documentation verification protocols.',
             rules: [
-                'All players must have valid government IDs for age verification.',
-                'PSA Birth Certificate is mandatory for all divisions.',
+                'PSA Birth Certificate is mandatory for all tournaments.',
                 'Players found using fake identities will be disqualified immediately.',
                 'Original PSA copy must be presented upon request by officials.',
             ],
@@ -45,27 +43,24 @@ export default function Rules() {
     ];
 
     return (
-        <section id="rules" className="relative py-2">
-            <BentoGrid className="items-start">
-                <BentoCard
-                    className="md:col-span-12 lg:col-span-8"
-                    padding="lg"
-                    variant="default"
-                >
-                    <BentoHeading
-                        eyebrow="League Protocols"
-                        title={
-                            <>
-                                Rules Of The{' '}
-                                <span className="text-brand-gold italic">
-                                    Court.
-                                </span>
-                            </>
-                        }
-                        description="A cleaner competition starts with explicit eligibility, roster, and conduct standards. Review every protocol before submitting a team."
-                    />
+        <section id="rules" className="relative py-24 bg-white">
+            <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+                {/* Header */}
+                <div className="flex flex-col mb-16">
+                    <h2 className="text-[#c1121f] text-sm font-black tracking-widest uppercase mb-3 border-l-[3px] border-[#c1121f] pl-3">
+                        League Protocols
+                    </h2>
+                    <h3 className="text-4xl md:text-5xl font-black text-gray-900 uppercase italic tracking-tight">
+                        Rules Of The Court
+                    </h3>
+                    <p className="max-w-xl text-gray-600 mt-6 leading-relaxed text-lg">
+                        A cleaner competition starts with explicit eligibility, roster, and conduct standards. Review every protocol before submitting a team.
+                    </p>
+                </div>
 
-                    <div className="mt-8 space-y-4">
+                <div className="grid lg:grid-cols-12 gap-12 items-start">
+                    {/* Categories Accordion */}
+                    <div className="lg:col-span-8 flex flex-col gap-6">
                         {categories.map((category, index) => {
                             const isOpen = openCategory === index;
 
@@ -73,171 +68,102 @@ export default function Rules() {
                                 <div
                                     key={category.title}
                                     className={cn(
-                                        'overflow-hidden rounded-[1.5rem] border transition-all duration-300',
-                                        isOpen
-                                            ? 'border-brand-gold/25 bg-brand-gold/6'
-                                            : 'border-white/8 bg-black/15',
+                                        'border-b transition-colors duration-300',
+                                        isOpen ? 'border-[#c1121f]' : 'border-gray-200'
                                     )}
                                 >
                                     <button
                                         type="button"
-                                        onClick={() =>
-                                            setOpenCategory(
-                                                isOpen ? null : index,
-                                            )
-                                        }
-                                        className="flex w-full items-center justify-between gap-6 p-6 text-left"
+                                        onClick={() => setOpenCategory(isOpen ? null : index)}
+                                        className="flex w-full items-center justify-between py-6 text-left group"
                                     >
-                                        <div className="space-y-2">
-                                            <div className="text-lg font-black tracking-[-0.03em] text-white uppercase">
+                                        <div>
+                                            <div className={cn(
+                                                "text-xl md:text-2xl font-black uppercase tracking-tight transition-colors",
+                                                isOpen ? "text-[#c1121f]" : "text-gray-900 group-hover:text-[#c1121f]"
+                                            )}>
                                                 {category.title}
                                             </div>
-                                            <p className="text-sm text-zinc-400">
+                                            <p className="text-gray-500 mt-2 font-medium">
                                                 {category.description}
                                             </p>
                                         </div>
-
-                                        <div
-                                            className={cn(
-                                                'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all',
-                                                isOpen
-                                                    ? 'rotate-180 border-brand-gold/40 text-brand-gold'
-                                                    : 'border-white/10 text-zinc-500',
-                                            )}
-                                        >
-                                            <svg
-                                                className="h-4 w-4"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2.5"
-                                                    d="M19 9l-7 7-7-7"
-                                                />
+                                        <div className={cn(
+                                            "flex h-10 w-10 shrink-0 items-center justify-center rounded-sm border-2 transition-transform duration-300",
+                                            isOpen ? "border-[#c1121f] text-[#c1121f] rotate-180" : "border-gray-300 text-gray-400 group-hover:border-gray-400 group-hover:text-gray-600"
+                                        )}>
+                                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </div>
                                     </button>
 
                                     <div
                                         className={cn(
-                                            'grid transition-all duration-300 ease-out',
-                                            isOpen
-                                                ? 'grid-rows-[1fr] opacity-100'
-                                                : 'grid-rows-[0fr] opacity-0',
+                                            'grid transition-all duration-300 ease-in-out',
+                                            isOpen ? 'grid-rows-[1fr] opacity-100 pb-8' : 'grid-rows-[0fr] opacity-0'
                                         )}
                                     >
                                         <div className="overflow-hidden">
-                                            <div className="grid gap-4 border-t border-white/8 p-6">
+                                            <ul className="space-y-4 pt-4">
                                                 {category.rules.map((rule) => (
-                                                    <div
-                                                        key={rule}
-                                                        className="flex items-start gap-4 rounded-[1.25rem] border border-white/8 bg-white/[0.03] p-4"
-                                                    >
-                                                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-gold" />
-                                                        <p className="text-sm leading-relaxed text-zinc-300">
-                                                            {rule}
-                                                        </p>
-                                                    </div>
+                                                    <li key={rule} className="flex items-start gap-4">
+                                                        <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-none bg-[#c1121f]" />
+                                                        <span className="text-gray-700 leading-relaxed text-base md:text-lg">{rule}</span>
+                                                    </li>
                                                 ))}
-                                            </div>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
                             );
                         })}
                     </div>
-                </BentoCard>
 
-                <div className="grid gap-5 md:col-span-12 lg:col-span-4">
-                    <BentoCard padding="lg" variant="accent" glow>
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-gold text-black">
-                                    <svg
-                                        className="h-6 w-6"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2.5"
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                        />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div className="text-lg font-black tracking-[-0.03em] text-white uppercase">
-                                        Documentation
-                                    </div>
-                                    <div className="text-[10px] font-black tracking-[0.24em] text-brand-gold uppercase">
-                                        Mandatory Submission
-                                    </div>
-                                </div>
+                    {/* Right column - Documentation & Notice */}
+                    <div className="lg:col-span-4 flex flex-col gap-6">
+                        {/* Documentation Box */}
+                        <div className="bg-[#1a1a1a] p-8 md:p-10 shadow-xl border-t-[4px] border-[#c1121f]">
+                            <h4 className="text-white text-xl md:text-2xl font-black uppercase tracking-tight mb-2">
+                                Documentation
+                            </h4>
+                            <div className="text-[#c1121f] text-[10px] md:text-xs font-black uppercase tracking-widest mb-8">
+                                Mandatory Submission
                             </div>
-
-                            <div className="grid gap-3">
+                            
+                            <ul className="space-y-6">
                                 {[
-                                    {
-                                        label: "Voter's or Postal ID",
-                                        sub: 'For all 21+ divisions',
-                                    },
-                                    {
-                                        label: 'Original PSA Certificate',
-                                        sub: 'Clear digital copy required',
-                                    },
-                                    {
-                                        label: 'Signed Parental Waiver',
-                                        sub: 'Mandatory for 21U players',
-                                    },
+                                    { label: "Voter's or Postal ID", sub: 'For all 21+ leagues' },
+                                    { label: 'Original PSA Certificate', sub: 'Clear digital copy required' },
+                                    { label: 'Signed Parental Waiver', sub: 'Mandatory for 21U players' },
                                 ].map((item) => (
-                                    <div
-                                        key={item.label}
-                                        className="rounded-[1.35rem] border border-white/10 bg-black/18 p-4"
-                                    >
-                                        <div className="text-sm font-semibold text-white">
-                                            {item.label}
-                                        </div>
-                                        <div className="mt-1 text-xs text-zinc-400">
-                                            {item.sub}
-                                        </div>
-                                    </div>
+                                    <li key={item.label} className="border-l-2 border-gray-700 pl-4 py-1 hover:border-[#c1121f] transition-colors">
+                                        <div className="text-white font-black text-sm uppercase">{item.label}</div>
+                                        <div className="text-gray-400 text-sm mt-1">{item.sub}</div>
+                                    </li>
                                 ))}
-                            </div>
+                            </ul>
                         </div>
-                    </BentoCard>
 
-                    <BentoCard padding="lg" variant="danger">
-                        <div className="space-y-4">
-                            <div className="text-[10px] font-black tracking-[0.24em] text-red-300 uppercase">
+                        {/* Notice Box */}
+                        <div className="bg-[#c1121f] p-8 md:p-10 shadow-xl">
+                            <h4 className="text-white/90 text-[10px] sm:text-xs font-black uppercase tracking-widest mb-4">
                                 Compliance Notice
-                            </div>
-                            <p className="text-sm leading-relaxed text-red-50/85">
-                                Failure to comply with documentation and roster
-                                protocols can delay approval or trigger
-                                disqualification.
+                            </h4>
+                            <p className="text-white text-base font-medium leading-relaxed mb-8">
+                                Failure to comply with documentation and roster protocols can delay approval or trigger disqualification.
                             </p>
                             <button
                                 type="button"
-                                onClick={() =>
-                                    document
-                                        .getElementById('register')
-                                        ?.scrollIntoView({
-                                            behavior: 'smooth',
-                                        })
-                                }
-                                className="inline-flex h-12 w-full items-center justify-center rounded-full bg-brand-gold px-6 text-[10px] font-black tracking-[0.24em] text-black uppercase transition-all hover:scale-[1.02] hover:bg-brand-gold-glow active:scale-[0.98]"
+                                onClick={() => document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' })}
+                                className="w-full bg-white text-[#c1121f] py-4 text-xs font-black tracking-widest uppercase hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98] transition-all"
                             >
                                 Start Team Entry
                             </button>
                         </div>
-                    </BentoCard>
+                    </div>
                 </div>
-            </BentoGrid>
+            </div>
         </section>
     );
 }

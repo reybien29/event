@@ -29,9 +29,9 @@ class Tournament extends Model
         'brand_color',
     ];
 
-    public function divisions(): HasMany
+    public function teams(): HasMany
     {
-        return $this->hasMany(Division::class);
+        return $this->hasMany(Team::class);
     }
 
     public function games(): HasMany

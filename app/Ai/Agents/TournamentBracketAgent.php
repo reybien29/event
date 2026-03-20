@@ -8,7 +8,7 @@ use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Promptable;
 use Stringable;
 
-class DivisionBracketAgent implements Agent, HasStructuredOutput
+class TournamentBracketAgent implements Agent, HasStructuredOutput
 {
     use Promptable;
 
@@ -25,7 +25,6 @@ class DivisionBracketAgent implements Agent, HasStructuredOutput
         return [
             'games' => $schema->array()->items(
                 $schema->object([
-                    'division_id' => $schema->integer()->required(),
                     'team_a_id' => $schema->integer()->required(),
                     'team_b_id' => $schema->integer()->required(),
                     'scheduled_at' => $schema->string()->format('date-time')->required(),

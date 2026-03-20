@@ -15,7 +15,7 @@ class Team extends Model
     use HasFactory;
 
     protected $fillable = [
-        'division_id',
+        'tournament_id',
         'name',
         'coach_name',
         'contact_number',
@@ -24,9 +24,9 @@ class Team extends Model
         'payment_reference',
     ];
 
-    public function division(): BelongsTo
+    public function tournament(): BelongsTo
     {
-        return $this->belongsTo(Division::class);
+        return $this->belongsTo(Tournament::class);
     }
 
     public function players(): HasMany

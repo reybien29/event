@@ -9,7 +9,72 @@
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
-    --color-brand-gold: #bca673;
-    --color-brand-dark: #09090b;
-    --color-brand-gold-glow: #e2c079;
+    /* ── Core brand palette ───────────────────────────────────────
+       Background scale: deep navy → slate → panel
+       Accent: warm amber-gold (single, deliberate)
+       Text: warm white → muted slate
+    ──────────────────────────────────────────────────────────── */
+
+    /* Backgrounds */
+    --color-bg-base:    #0B1120;   /* page canvas — deepest navy      */
+    --color-bg-surface: #111827;   /* cards / panels                  */
+    --color-bg-raised:  #1A2236;   /* elevated cards, modals          */
+    --color-bg-subtle:  #1E2A40;   /* hover states, dividers          */
+
+    /* Accent — a single restrained gold */
+    --color-accent:         #D4A843;   /* primary amber-gold              */
+    --color-accent-bright:  #EAB84A;   /* hover / highlight               */
+    --color-accent-muted:   #8C6E28;   /* disabled / subdued              */
+    --color-accent-glow:    rgba(212,168,67,0.18);
+
+    /* Text */
+    --color-text-primary:   #F0EDE6;   /* warm white — headlines          */
+    --color-text-secondary: #9BA3B4;   /* body copy, labels               */
+    --color-text-tertiary:  #5A6478;   /* placeholder, hints              */
+    --color-text-accent:    #D4A843;   /* accented text                   */
+
+    /* Borders */
+    --color-border-subtle:  rgba(255,255,255,0.06);
+    --color-border-default: rgba(255,255,255,0.10);
+    --color-border-accent:  rgba(212,168,67,0.30);
+
+    /* Semantic */
+    --color-success: #2E7D52;
+    --color-error:   #B33A3A;
+
+    /* Tailwind token shims — keep existing utility classes working */
+    --color-brand-gold:      #D4A843;
+    --color-brand-dark:      #0B1120;
+    --color-brand-gold-glow: #EAB84A;
+}
+
+/* ── Global resets ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    background-color: var(--color-bg-base);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shared keyframes (used across components) ── */
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes revealX {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+
+@keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0 var(--color-accent-glow); }
+    70%  { box-shadow: 0 0 0 10px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
 }

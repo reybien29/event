@@ -208,9 +208,9 @@ export default function SettingsIndex({ tournament }: Props) {
                             System Note
                         </h3>
                         <p className="text-sm leading-relaxed font-medium text-red-100/80">
-                            Schedule generation is available per division, and
+                            Schedule generation is available, and
                             the Teams menu can now regenerate randomized
-                            elimination brackets for every registered division
+                            elimination brackets for all registered teams
                             at once.
                         </p>
                     </BentoCard>

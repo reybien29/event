@@ -2,29 +2,28 @@
 
 namespace App\Services;
 
-use App\Ai\Agents\DivisionBracketAgent;
-use App\Models\Division;
+use App\Ai\Agents\TournamentBracketAgent;
 use App\Models\Team;
 use App\Models\Tournament;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Throwable;
 
-class DivisionBracketService
+class TournamentBracketService
 {
     /**
      * @param  Collection<int, Team>  $teams
      * @return array<int, array<string, int|string>>
      */
-    public function generate(Division $division, Tournament $tournament, Collection $teams): array
+    public function generate(Tournament $tournament, Collection $teams): array
     {
         $orderedTeams = $teams->sortBy('name')->values();
         $maxPairings = intdiv($orderedTeams->count(), 2);
 
         $prompt = sprintf(
-            'Create first-round single-elimination bracket pairings with scheduled match times for division %s (ID %d). Use only these teams: %s. Tournament window: %s to %s. Use realistic courts like Court A or Court B. Return at most %d games.',
-            $division->name,
-            $division->id,
+            'Create first-round single-elimination bracket pairings with scheduled match times for tournament %s (ID %d). Use only these teams: %s. Tournament window: %s to %s. Use realistic courts like Court A or Court B. Return at most %d games.',
+            $tournament->name,
+            $tournament->id,
             $orderedTeams->map(fn (Team $team) => [
                 'id' => $team->id,
                 'name' => $team->name,
@@ -35,7 +34,7 @@ class DivisionBracketService
         );
 
         try {
-            $response = (new DivisionBracketAgent)->prompt($prompt);
+            $response = (new TournamentBracketAgent)->prompt($prompt);
             $aiGames = [];
             $usedTeamIds = [];
 
@@ -80,7 +79,7 @@ class DivisionBracketService
      * @param  Collection<int, Team>  $teams
      * @return array<int, array<string, int|string>>
      */
-    public function generateRandomized(Division $division, Tournament $tournament, Collection $teams): array
+    public function generateRandomized(Tournament $tournament, Collection $teams): array
     {
         return $this->fallbackBracket($teams->shuffle()->values(), $tournament);
     }

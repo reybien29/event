@@ -6,7 +6,6 @@ interface Game {
     id: number;
     team_a: { name: string };
     team_b: { name: string };
-    division: { name: string };
     scheduled_at: string;
     court_name: string;
     status: string;
@@ -42,7 +41,7 @@ export default function Index({ games, teams_count }: Props) {
                             </h2>
                         </div>
                         <p className="text-sm leading-relaxed text-zinc-300">
-                            {games.length} games scheduled across all divisions.
+                            {games.length} games scheduled.
                             Scheduling is currently managed manually from the
                             control room.
                         </p>
@@ -66,7 +65,6 @@ export default function Index({ games, teams_count }: Props) {
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="border-b border-white/5 bg-white/2 text-[10px] font-black tracking-widest text-zinc-500 uppercase">
-                                    <th className="px-8 py-6">Division</th>
                                     <th className="px-8 py-6">Matchup</th>
                                     <th className="px-8 py-6">
                                         Date &amp; Time
@@ -81,7 +79,7 @@ export default function Index({ games, teams_count }: Props) {
                                 {games.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={5}
+                                            colSpan={4}
                                             className="py-32 text-center"
                                         >
                                             <div className="flex flex-col items-center">
@@ -112,11 +110,7 @@ export default function Index({ games, teams_count }: Props) {
                                         key={game.id}
                                         className="group transition-colors hover:bg-white/[0.02]"
                                     >
-                                        <td className="px-8 py-6">
-                                            <span className="rounded bg-brand-gold/10 px-2 py-1 text-[10px] font-black tracking-widest text-brand-gold uppercase">
-                                                {game.division.name}
-                                            </span>
-                                        </td>
+
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
                                                 <span className="text-sm font-black tracking-tight text-white">

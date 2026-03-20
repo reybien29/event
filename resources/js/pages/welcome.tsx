@@ -2,12 +2,9 @@ import { Head } from '@inertiajs/react';
 import RegistrationForm from '../Components/Landing/RegistrationForm';
 import Rules from '../Components/Landing/Rules';
 import TournamentOverview from '../Components/Landing/TournamentOverview';
+import PrizePool from '../Components/Landing/PrizePool';
 import LandingLayout from '../Layouts/LandingLayout';
 
-interface Division {
-    id: number;
-    name: string;
-}
 
 interface Tournament {
     id: number;
@@ -18,7 +15,6 @@ interface Tournament {
     end_date?: string | null;
     description?: string | null;
     prize_pool?: string | null;
-    divisions: Division[];
 }
 
 interface Props {
@@ -27,15 +23,14 @@ interface Props {
 
 const defaultTournament: Tournament = {
     id: 0,
-    name: 'Elite Basketball League 2026',
+    name: 'Eastern Visayas Collegiate Athletic Association 2026',
     description:
-        'The premier basketball league where legends are born and careers are made.',
+        'UNITING TEAMS, ELEVATING DREAMS!',
     logo: '',
     brand_color: '#B8860B',
     prize_pool: '₱500,000.00',
     start_date: '2026-04-02',
     end_date: '2026-04-25',
-    divisions: [],
 };
 
 export default function Welcome({ tournament }: Props) {
@@ -51,18 +46,20 @@ export default function Welcome({ tournament }: Props) {
                 title={activeTournament.name || 'Premium Basketball Tournament'}
             />
 
-            <div className="relative mx-auto max-w-7xl space-y-8 overflow-x-clip py-4 lg:space-y-10">
-                <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-[800px] w-[min(100%,80rem)] rounded-full bg-brand-gold/5 blur-[150px]" />
-
+            <div className="relative w-full overflow-x-clip">
                 <TournamentOverview
                     tournament={activeTournament}
-                    fixedFee={fixedFee}
                 />
+                <PrizePool />
                 <Rules />
-                <RegistrationForm
-                    divisions={activeTournament.divisions || []}
-                    fixedFee={fixedFee}
-                />
+                
+                <div className="bg-white py-24">
+                    <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+                        <RegistrationForm
+                            fixedFee={fixedFee}
+                        />
+                    </div>
+                </div>
             </div>
         </LandingLayout>
     );

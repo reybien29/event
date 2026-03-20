@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePoll } from '@inertiajs/react';
 import { index as statsIndex } from '@/actions/App/Http/Controllers/Admin/StatsController';
 import { index as teamsIndex } from '@/actions/App/Http/Controllers/Admin/TeamController';
 import { BentoCard, BentoGrid } from '@/Components/ui/bento';
@@ -10,9 +10,6 @@ interface Team {
     name: string;
     coach_name: string;
     status: string;
-    division?: {
-        name: string;
-    };
 }
 
 interface Props {
@@ -26,6 +23,10 @@ interface Props {
 }
 
 export default function Dashboard({ stats, recent_teams }: Props) {
+    usePoll(3000, {
+        only: ['stats', 'recent_teams'],
+    });
+
     return (
         <AdminLayout title="System Overview">
             <Head title="Admin Dashboard" />
@@ -125,7 +126,7 @@ export default function Dashboard({ stats, recent_teams }: Props) {
                                 <thead>
                                     <tr className="border-b border-white/5 text-[10px] font-black text-zinc-600 uppercase">
                                         <th className="pb-4">Team Name</th>
-                                        <th className="pb-4">Division</th>
+
                                         <th className="pb-4">Coach</th>
                                         <th className="pb-4 text-right">
                                             Status
@@ -138,9 +139,7 @@ export default function Dashboard({ stats, recent_teams }: Props) {
                                             <td className="max-w-[150px] truncate py-4 text-sm font-bold tracking-tight text-white transition-colors group-hover:text-brand-gold">
                                                 {team.name}
                                             </td>
-                                            <td className="py-4 text-xs font-semibold text-zinc-500">
-                                                {team.division?.name || 'N/A'}
-                                            </td>
+
                                             <td className="py-4 text-sm font-medium text-zinc-400">
                                                 {team.coach_name}
                                             </td>

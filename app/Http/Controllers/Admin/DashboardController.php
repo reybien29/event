@@ -20,7 +20,7 @@ class DashboardController extends Controller
                 'total_payments' => '₱ '.number_format(Payment::where('status', 'paid')->sum('amount'), 2),
                 'pending_registrations' => Team::where('status', 'pending')->count(),
             ],
-            'recent_teams' => Team::with('division')->latest()->take(5)->get(),
+            'recent_teams' => Team::latest()->take(5)->get(),
         ]);
     }
 }

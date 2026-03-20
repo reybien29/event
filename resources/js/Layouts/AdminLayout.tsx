@@ -1,9 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
-import type { ReactNode } from 'react';
-import { useState } from 'react';
-import { BentoCard } from '@/Components/ui/bento';
+import { ReactNode, useState } from 'react';
 import admin from '@/routes/admin';
-import { cn } from '../lib/utils';
 
 interface Props {
     children: ReactNode;
@@ -18,279 +15,286 @@ interface SharedPageProps {
     };
 }
 
-export default function AdminLayout({
-    children,
-    title = 'Management Console',
-}: Props) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const page = usePage<SharedPageProps>();
-    const flash = page.props.flash ?? {};
+/* ── Design tokens ── */
+const T = {
+    bgBase:        '#0B1120',
+    bgSurface:     '#111827',
+    bgRaised:      '#1A2236',
+    bgSubtle:      '#1E2A40',
+    accent:        '#D4A843',
+    accentBright:  '#EAB84A',
+    accentFill:    'rgba(212,168,67,0.08)',
+    accentBorder:  'rgba(212,168,67,0.22)',
+    textPrimary:   '#F0EDE6',
+    textSecondary: '#9BA3B4',
+    textTertiary:  '#5A6478',
+    borderSubtle:  'rgba(255,255,255,0.06)',
+    borderDefault: 'rgba(255,255,255,0.10)',
+};
 
-    const navItems = [
-        {
-            label: 'Dashboard',
-            icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
-            href: admin.dashboard.url(),
-        },
-        {
-            label: 'Teams',
-            icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
-            href: admin.teams.index.url(),
-        },
-        {
-            label: 'Schedule',
-            icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
-            href: admin.games.index.url(),
-        },
-        {
-            label: 'Stats Management',
-            icon: 'M7 20l4-16m2 16l4-16M5 9h14M4 15h10',
-            href: admin.stats.index.url(),
-        },
-        {
-            label: 'Settings',
-            icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
-            href: admin.settings.index.url(),
-        },
-    ];
+const NAV_ITEMS = [
+    {
+        label: 'Dashboard',
+        href: '/admin/dashboard',
+        icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+    },
+    {
+        label: 'Teams',
+        href: '/admin/teams',
+        icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+    },
+    {
+        label: 'Schedule',
+        href: '/admin/games',
+        icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',
+    },
+    {
+        label: 'Stats Management',
+        href: '/admin/stats',
+        icon: 'M7 20l4-16m2 16l4-16M6 9h14M4 15h14', // Hashtag icon
+    },
+    {
+        label: 'Settings',
+        href: '/admin/settings',
+        icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+    },
+];
+
+export default function AdminLayout({ children, title = 'Management Console' }: Props) {
+    const page  = usePage<SharedPageProps>();
+    const flash = page.props.flash ?? {};
+    const url   = page.url;
+
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const sidebarWidth = isCollapsed ? '78px' : '240px';
 
     return (
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(188,166,115,0.08),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_24%),linear-gradient(180deg,#09090b_0%,#0a0a0a_100%)] px-4 py-4 font-sans text-zinc-100 antialiased sm:px-5">
-            <aside
-                className={cn(
-                    'fixed inset-y-4 left-4 z-50 overflow-hidden rounded-[2rem] border border-white/8 bg-[#09090b]/90 shadow-[0_30px_80px_rgba(2,6,23,0.45)] backdrop-blur-2xl transition-all duration-300 sm:left-5',
-                    isSidebarOpen
-                        ? 'w-[min(18rem,calc(100vw-2rem))] sm:w-72'
-                        : 'w-24',
-                )}
-            >
-                <div className="flex h-full flex-col p-4">
-                    <div className="flex items-center justify-between gap-3 rounded-[1.5rem] border border-white/8 bg-white/[0.04] p-4">
-                        <div
-                            className={cn(
-                                'flex items-center gap-3',
-                                !isSidebarOpen && 'w-full justify-center',
-                            )}
-                        >
-                            <div className="flex h-10 w-10 min-w-[40px] items-center justify-center rounded-2xl bg-brand-gold text-black shadow-lg shadow-brand-gold/20">
-                                <span className="text-sm font-black">E</span>
-                            </div>
-                            {isSidebarOpen ? (
-                                <div className="animate-in fade-in slide-in-from-left-2 min-w-0">
-                                    <div className="text-[10px] font-black tracking-[0.24em] text-zinc-500 uppercase">
-                                        Control Room
-                                    </div>
-                                    <div className="truncate text-sm font-black tracking-tighter whitespace-nowrap uppercase">
-                                        Elite{' '}
-                                        <span className="text-brand-gold">
-                                            Console
-                                        </span>
-                                    </div>
-                                </div>
-                            ) : null}
-                        </div>
+        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: T.bgBase, color: T.textPrimary, fontFamily: 'inherit' }}>
 
-                        {isSidebarOpen ? (
-                            <button
-                                onClick={() => setIsSidebarOpen(false)}
-                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/20 text-brand-gold transition-all hover:border-brand-gold/30 hover:bg-brand-gold/10"
-                                aria-label="Collapse sidebar"
+            <style>{`
+                .al-nav-link {
+                    display: flex; align-items: center; gap: 10px;
+                    padding: 8px 11px; /* adjusted slightly to account for the border */
+                    border: 1px solid transparent;
+                    border-radius: 10px;
+                    font-size: 11px; font-weight: 700;
+                    letter-spacing: 0.18em; text-transform: uppercase;
+                    text-decoration: none; color: ${T.textTertiary};
+                    transition: background 0.15s, color 0.15s, border-color 0.15s;
+                }
+                .al-nav-link:hover, .al-nav-link.active {
+                    background: ${T.accentFill};
+                    color: ${T.accent};
+                    border-color: ${T.accentBorder};
+                }
+                .al-nav-link:hover svg, .al-nav-link.active svg { opacity: 1; }
+                .al-nav-link svg { opacity: 0.55; transition: opacity 0.15s; }
+            `}</style>
+
+            {/* ── Sidebar ── */}
+            <aside style={{
+                position: 'fixed', inset: '0 auto 0 0',
+                width: sidebarWidth, zIndex: 50,
+                backgroundColor: T.bgSurface,
+                borderRight: `1px solid ${T.borderSubtle}`,
+                display: 'flex', flexDirection: 'column',
+                transition: 'width 0.3s ease',
+            }}>
+                {/* Collapse Toggle */}
+                <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    style={{
+                        position: 'absolute',
+                        top: '50%', right: '-14px',
+                        transform: 'translateY(-50%)',
+                        width: '28px', height: '28px',
+                        borderRadius: '50%',
+                        backgroundColor: '#1E2A40',
+                        border: `1px solid ${T.borderSubtle}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', zIndex: 60,
+                        color: T.accent,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                    }}
+                >
+                    <svg
+                        width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        style={{ transform: isCollapsed ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s ease' }}
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                {/* Logo */}
+                <div style={{
+                    height: '64px', display: 'flex', alignItems: 'center',
+                    padding: isCollapsed ? '0' : '0 1.25rem',
+                    justifyContent: isCollapsed ? 'center' : 'flex-start',
+                    borderBottom: `1px solid ${T.borderSubtle}`,
+                    gap: '10px',
+                    overflow: 'hidden',
+                }}>
+                    <div style={{
+                        minWidth: '32px', height: '32px', borderRadius: '8px',
+                        background: T.accent, color: '#0B1120',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '13px', fontWeight: 900,
+                    }}>
+                        E
+                    </div>
+                    {!isCollapsed && (
+                        <span style={{
+                            fontSize: '13px', fontWeight: 800,
+                            letterSpacing: '-0.01em', textTransform: 'uppercase',
+                            color: T.textPrimary,
+                            whiteSpace: 'nowrap',
+                        }}>
+                            Elite <span style={{ color: T.accent }}>Console</span>
+                        </span>
+                    )}
+                </div>
+
+                {/* Nav items */}
+                <nav style={{ padding: '1rem 0.75rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '2px', overflowX: 'hidden' }}>
+                    {NAV_ITEMS.map((item) => {
+                        const active = url.startsWith(item.href);
+                        return (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                className={`al-nav-link${active ? ' active' : ''}`}
+                                style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '11px 0' : '8px 11px' }}
                             >
-                                <svg
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="3"
-                                        d="M15 18l-6-6 6-6"
-                                    />
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d={item.icon} />
                                 </svg>
-                            </button>
-                        ) : null}
-                    </div>
+                                {!isCollapsed && <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>}
+                            </Link>
+                        );
+                    })}
+                </nav>
 
-                    <nav className="mt-5 flex-1 space-y-2">
-                        {navItems.map((item) => {
-                            const isActive = page.url.startsWith(item.href);
-
-                            return (
-                                <Link
-                                    key={item.label}
-                                    href={item.href}
-                                    title={
-                                        !isSidebarOpen ? item.label : undefined
-                                    }
-                                    className={cn(
-                                        'group flex items-center gap-3 rounded-[1.3rem] border px-4 py-3 text-xs font-bold tracking-widest uppercase transition-all',
-                                        isActive
-                                            ? 'border-brand-gold/18 bg-brand-gold/10 text-brand-gold'
-                                            : 'border-transparent bg-white/[0.03] text-zinc-500 hover:border-white/8 hover:bg-white/[0.06] hover:text-white',
-                                        !isSidebarOpen && 'justify-center px-0',
-                                    )}
-                                >
-                                    <svg
-                                        className={cn(
-                                            'h-5 w-5 shrink-0 transition-colors',
-                                            isActive
-                                                ? 'text-brand-gold'
-                                                : 'text-zinc-500 group-hover:text-brand-gold',
-                                        )}
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d={item.icon}
-                                        />
-                                    </svg>
-                                    {isSidebarOpen ? (
-                                        <span className="animate-in fade-in slide-in-from-left-2 whitespace-nowrap">
-                                            {item.label}
-                                        </span>
-                                    ) : null}
-                                </Link>
-                            );
-                        })}
-                    </nav>
-
-                    <div className="space-y-3">
-                        <button
-                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className={cn(
-                                'flex h-12 w-full items-center justify-center rounded-[1.3rem] border border-white/10 bg-white/[0.04] text-[10px] font-black tracking-[0.24em] text-zinc-300 uppercase transition-all hover:border-brand-gold/20 hover:text-brand-gold',
-                                !isSidebarOpen && 'px-0',
-                            )}
-                            aria-label={
-                                isSidebarOpen
-                                    ? 'Collapse sidebar'
-                                    : 'Expand sidebar'
-                            }
-                        >
-                            {isSidebarOpen ? 'Compact View' : 'Expand'}
-                        </button>
-
-                        <Link
-                            href={admin.logout.url()}
-                            method="post"
-                            as="button"
-                            className={cn(
-                                'group flex w-full items-center gap-3 rounded-[1.3rem] border border-red-500/16 bg-red-500/6 px-4 py-3 text-[10px] font-black tracking-widest text-red-400 uppercase transition-all hover:bg-red-500/10 active:scale-95',
-                                !isSidebarOpen && 'justify-center px-0',
-                            )}
-                            title={
-                                !isSidebarOpen ? 'Logout Console' : undefined
-                            }
-                        >
-                            <svg
-                                className="h-4 w-4 shrink-0"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                />
-                            </svg>
-                            {isSidebarOpen ? (
-                                <span className="animate-in fade-in slide-in-from-left-2 whitespace-nowrap">
-                                    Logout Console
-                                </span>
-                            ) : null}
-                        </Link>
-
-                        <div className="rounded-[1.3rem] border border-white/8 bg-white/[0.04] p-4">
-                            <div
-                                className={cn(
-                                    'flex items-center gap-3',
-                                    !isSidebarOpen && 'justify-center',
-                                )}
-                            >
-                                <div className="h-9 w-9 min-w-[36px] rounded-full bg-brand-gold/20" />
-                                {isSidebarOpen ? (
-                                    <div className="animate-in fade-in slide-in-from-left-2 truncate">
-                                        <div className="truncate text-[10px] font-black text-white uppercase">
-                                            Administrator
-                                        </div>
-                                        <div className="truncate text-[10px] font-medium text-zinc-500">
-                                            Elite League
-                                        </div>
-                                    </div>
-                                ) : null}
-                            </div>
+                {/* Bottom */}
+                <div style={{ padding: '0.75rem', borderTop: `1px solid ${T.borderSubtle}`, overflowX: 'hidden' }}>
+                    {/* User chip */}
+                    <div style={{
+                        display: 'flex', alignItems: 'center', gap: '10px',
+                        padding: isCollapsed ? '10px 0' : '10px 12px', borderRadius: '10px',
+                        background: T.bgRaised,
+                        marginBottom: '8px',
+                        justifyContent: isCollapsed ? 'center' : 'flex-start',
+                    }}>
+                        <div style={{
+                            minWidth: '30px', height: '30px', borderRadius: '50%',
+                            background: T.bgSubtle, flexShrink: 0,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '11px', fontWeight: 800, color: T.textTertiary,
+                        }}>
+                            A
                         </div>
+                        {!isCollapsed && (
+                            <div style={{ whiteSpace: 'nowrap' }}>
+                                <div style={{ fontSize: '11px', fontWeight: 700, color: T.textPrimary }}>Administrator</div>
+                                <div style={{ fontSize: '10px', color: T.textTertiary }}>Elite League</div>
+                            </div>
+                        )}
                     </div>
+
+                    {/* Logout */}
+                    <Link
+                        href="/admin/logout"
+                        method="post"
+                        as="button"
+                        style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                            width: '100%', padding: isCollapsed ? '12px 0' : '9px 12px', borderRadius: '10px',
+                            border: `1px solid rgba(176,44,44,0.2)`,
+                            background: 'rgba(176,44,44,0.06)',
+                            color: '#C0392B',
+                            fontSize: '11px', fontWeight: 700,
+                            letterSpacing: '0.18em', textTransform: 'uppercase',
+                            cursor: 'pointer', fontFamily: 'inherit',
+                            transition: 'background 0.15s',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(176,44,44,0.12)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(176,44,44,0.06)')}
+                    >
+                        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        {!isCollapsed && <span style={{ whiteSpace: 'nowrap' }}>Logout</span>}
+                    </Link>
                 </div>
             </aside>
 
-            <main
-                className={cn(
-                    'flex-1 transition-all duration-300',
-                    isSidebarOpen
-                        ? 'pt-[20rem] pl-0 sm:pt-0 sm:pl-[19.5rem]'
-                        : 'pt-32 pl-0 sm:pt-0 sm:pl-28',
-                )}
-            >
-                <div className="mx-auto max-w-[92rem] space-y-6">
-                    <BentoCard
-                        className="sticky top-4 z-40"
-                        padding="md"
-                        variant="subtle"
+            {/* ── Main ── */}
+            <main style={{ flex: 1, marginLeft: sidebarWidth, display: 'flex', flexDirection: 'column', minHeight: '100vh', transition: 'margin-left 0.3s ease' }}>
+
+                {/* Top bar */}
+                <header style={{
+                    height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0 2rem',
+                    borderBottom: `1px solid ${T.borderSubtle}`,
+                    backgroundColor: T.bgSurface,
+                    position: 'sticky', top: 0, zIndex: 40,
+                }}>
+                    <h1 style={{
+                        fontSize: '11px', fontWeight: 700,
+                        letterSpacing: '0.3em', textTransform: 'uppercase',
+                        color: T.textTertiary,
+                    }}>
+                        {title}
+                    </h1>
+                    <button style={{
+                        width: '36px', height: '36px', borderRadius: '8px',
+                        border: `1px solid ${T.borderSubtle}`,
+                        background: T.bgRaised,
+                        color: T.textTertiary, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'color 0.15s',
+                    }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = T.textPrimary)}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = T.textTertiary)}
                     >
-                        <div className="flex items-center justify-between gap-6">
-                            <div>
-                                <div className="text-[10px] font-black tracking-[0.28em] text-zinc-500 uppercase">
-                                    Management Console
-                                </div>
-                                <h1 className="mt-2 text-2xl font-black tracking-[-0.04em] text-white uppercase">
-                                    {title}
-                                </h1>
-                            </div>
+                        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75"
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                    </button>
+                </header>
 
-                            <div className="flex items-center gap-3">
-                                <div className="hidden rounded-full border border-brand-gold/18 bg-brand-gold/10 px-4 py-2 text-[10px] font-black tracking-[0.2em] text-brand-gold uppercase sm:inline-flex">
-                                    Live Ops
-                                </div>
-                                <button className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-zinc-400 transition-colors hover:text-white">
-                                    <svg
-                                        className="h-5 w-5"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                                        />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </BentoCard>
+                {/* Content */}
+                <div style={{ padding: '2rem', flex: 1 }}>
+                    <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
 
-                    <div className="animate-in fade-in slide-in-from-bottom-2 mx-auto max-w-7xl pb-6 duration-500">
-                        {flash.success ? (
-                            <div className="mb-6 rounded-[1.5rem] border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 text-sm font-semibold text-emerald-300 backdrop-blur-xl">
+                        {/* Flash messages */}
+                        {flash.success && (
+                            <div style={{
+                                marginBottom: '1.25rem',
+                                padding: '1rem 1.25rem',
+                                borderRadius: '12px',
+                                border: '1px solid rgba(46,125,82,0.25)',
+                                background: 'rgba(46,125,82,0.08)',
+                                color: '#4CAF80',
+                                fontSize: '13px', fontWeight: 600,
+                            }}>
                                 {flash.success}
                             </div>
-                        ) : null}
-
-                        {flash.error ? (
-                            <div className="mb-6 rounded-[1.5rem] border border-red-500/20 bg-red-500/10 px-5 py-4 text-sm font-semibold text-red-300 backdrop-blur-xl">
+                        )}
+                        {flash.error && (
+                            <div style={{
+                                marginBottom: '1.25rem',
+                                padding: '1rem 1.25rem',
+                                borderRadius: '12px',
+                                border: '1px solid rgba(176,44,44,0.25)',
+                                background: 'rgba(176,44,44,0.08)',
+                                color: '#E57373',
+                                fontSize: '13px', fontWeight: 600,
+                            }}>
                                 {flash.error}
                             </div>
-                        ) : null}
+                        )}
 
                         {children}
                     </div>

@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Division;
 use App\Models\Team;
+use App\Models\Tournament;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -13,16 +13,15 @@ class StandingsFacebookPublisher
     /**
      * @return array<int, array<string, int|float|string|null>>
      */
-    public function standingsSnapshot(Division $division): array
+    public function standingsSnapshot(Tournament $tournament): array
     {
-        $division->loadMissing([
-            'tournament',
+        $tournament->loadMissing([
             'teams' => fn ($query) => $query
                 ->with('standings')
                 ->orderBy('name'),
         ]);
 
-        return $division->teams
+        return collect($tournament->teams)
             ->map(function (Team $team): array {
                 $standing = $team->standings;
                 $wins = (int) ($standing?->wins ?? 0);
@@ -51,21 +50,18 @@ class StandingsFacebookPublisher
             ->all();
     }
 
-    public function buildDivisionMessage(Division $division): string
+    public function buildTournamentMessage(Tournament $tournament): string
     {
-        $standings = $this->standingsSnapshot($division);
+        $standings = $this->standingsSnapshot($tournament);
 
         if ($standings === []) {
-            throw new RuntimeException('No team standings are available for this division yet.');
+            throw new RuntimeException('No team standings are available for this tournament yet.');
         }
 
-        $heading = $division->tournament?->name
-            ? "{$division->tournament->name} Standings Update"
-            : 'Standings Update';
+        $heading = "{$tournament->name} Standings Update";
 
         $lines = [
             $heading,
-            "Division: {$division->name}",
             '',
         ];
 
@@ -94,7 +90,7 @@ class StandingsFacebookPublisher
         return implode("\n", $lines);
     }
 
-    public function publishDivisionStandings(Division $division): void
+    public function publishTournamentStandings(Tournament $tournament): void
     {
         $pageId = (string) config('services.facebook.page_id', '');
         $pageAccessToken = (string) config('services.facebook.page_access_token', '');
@@ -108,7 +104,7 @@ class StandingsFacebookPublisher
             Http::asForm()
                 ->timeout(15)
                 ->post("https://graph.facebook.com/{$graphVersion}/{$pageId}/feed", [
-                    'message' => $this->buildDivisionMessage($division),
+                    'message' => $this->buildTournamentMessage($tournament),
                     'access_token' => $pageAccessToken,
                 ])
                 ->throw();
