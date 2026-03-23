@@ -1,0 +1,496 @@
+/* ════════════════════════════════════════════════════════════════
+   LANDING PAGE ANIMATIONS — Basketball Tournament
+   Drop this into resources/css/app.css or import in your blade
+════════════════════════════════════════════════════════════════ */
+
+/* ── Base keyframes ── */
+
+@keyframes heroSlideUp {
+  from { opacity: 0; transform: translateY(48px) skewY(1deg); }
+  to   { opacity: 1; transform: translateY(0) skewY(0); }
+}
+
+@keyframes heroSlideLeft {
+  from { opacity: 0; transform: translateX(-60px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes revealWidth {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+
+@keyframes badgePopIn {
+  0%   { opacity: 0; transform: scale(0.6) translateY(8px); }
+  70%  { transform: scale(1.06) translateY(-2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes textReveal {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); }
+  to   { opacity: 1; clip-path: inset(0 0% 0 0); }
+}
+
+@keyframes lineGrow {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+
+@keyframes floatBox {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes shimmerSlide {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(32px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ruleBarSlide {
+  from { transform: scaleX(0); transform-origin: left; opacity: 0; }
+  to   { transform: scaleX(1); transform-origin: left; opacity: 1; }
+}
+
+@keyframes accordionFade {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes navFadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes prizeCardIn {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes scanLine {
+  0%   { top: 0%; opacity: 0.6; }
+  100% { top: 100%; opacity: 0; }
+}
+
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0 rgba(193, 18, 31, 0.35); }
+  70%  { box-shadow: 0 0 0 14px rgba(193, 18, 31, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(193, 18, 31, 0); }
+}
+
+@keyframes bgPan {
+  from { background-position: 50% 40%; }
+  to   { background-position: 50% 60%; }
+}
+
+@keyframes redLineIn {
+  from { width: 0; }
+  to   { width: 3rem; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   NAV
+════════════════════════════════════════════════════════════════ */
+
+nav {
+  animation: navFadeDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+nav a {
+  position: relative;
+  transition: color 0.2s;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #c1121f;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+nav a:hover::after {
+  width: 100%;
+}
+
+/* Register CTA shimmer */
+nav a[href="#register"] {
+  position: relative;
+  overflow: hidden;
+}
+
+nav a[href="#register"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255,255,255,0.18) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmerSlide 2.4s linear infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   HERO / TOURNAMENT OVERVIEW
+════════════════════════════════════════════════════════════════ */
+
+/* Badge */
+#overview [class*="bg-[#c1121f]"]:first-child,
+#overview div[style*="clip-path"] {
+  animation: badgePopIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+/* CEBU heading — each span staggers */
+#overview h1 span:nth-child(1) {
+  display: block;
+  animation: heroSlideLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+#overview h1 span:nth-child(2) {
+  display: block;
+  animation: heroSlideLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+}
+
+#overview h1 span:nth-child(3) {
+  display: block;
+  animation: heroSlideLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+}
+
+/* Subtitle */
+#overview p {
+  animation: heroSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+}
+
+/* Info boxes (dates, venue) — staggered float-in */
+#overview .flex.flex-col.sm\:flex-row > div:nth-child(1) {
+  animation: cardReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.85s both;
+}
+
+#overview .flex.flex-col.sm\:flex-row > div:nth-child(2) {
+  animation: cardReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.95s both;
+}
+
+/* Info boxes hover — subtle lift */
+#overview .flex.flex-col.sm\:flex-row > div {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+}
+
+#overview .flex.flex-col.sm\:flex-row > div:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+}
+
+/* Parallax-style background pan */
+#overview .absolute.inset-0 {
+  animation: bgPan 12s ease-in-out alternate infinite;
+}
+
+/* Scan line effect over hero */
+#overview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 4px
+  );
+  z-index: 5;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   PRIZE POOL
+════════════════════════════════════════════════════════════════ */
+
+/* Header red bar */
+#prizes .h-\[3px\] {
+  animation: redLineIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+/* Section heading */
+#prizes h2 {
+  animation: heroSlideLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+/* Prize cards stagger */
+#prizes .grid > div:nth-child(1) {
+  animation: prizeCardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+#prizes .grid > div:nth-child(2) {
+  animation: prizeCardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both;
+}
+
+#prizes .grid > div:nth-child(3) {
+  animation: prizeCardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.41s both;
+}
+
+#prizes .grid > div:nth-child(4) {
+  animation: prizeCardIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.54s both;
+}
+
+/* Amount text count-up feel */
+#prizes .text-5xl,
+#prizes .text-4xl,
+#prizes .text-3xl {
+  animation: countUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+/* Champion card — pulse ring on hover */
+#prizes .grid > div:nth-child(1):hover {
+  animation: pulseRing 1.2s ease-out;
+}
+
+/* Hover lift on all prize cards */
+#prizes .grid > div {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s, filter 0.25s;
+  cursor: default;
+}
+
+#prizes .grid > div:hover {
+  transform: translateY(-8px) scale(1.012);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+  filter: brightness(1.06);
+  z-index: 2;
+}
+
+/* Trophy icon float */
+#prizes .grid > div:nth-child(1) .opacity-20 {
+  animation: floatBox 4s ease-in-out infinite;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RULES / ACCORDION
+════════════════════════════════════════════════════════════════ */
+
+/* Red accent bar */
+#rules h2.border-l-\[3px\] {
+  animation: heroSlideLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+#rules h3 {
+  animation: heroSlideLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+#rules p.max-w-xl {
+  animation: heroSlideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+/* Accordion items stagger */
+#rules .flex.flex-col.gap-6 > div:nth-child(1) {
+  animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+
+#rules .flex.flex-col.gap-6 > div:nth-child(2) {
+  animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both;
+}
+
+#rules .flex.flex-col.gap-6 > div:nth-child(3) {
+  animation: cardReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.54s both;
+}
+
+/* Doc box entrance */
+#rules .lg\:col-span-4 > div:nth-child(1) {
+  animation: cardReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+#rules .lg\:col-span-4 > div:nth-child(2) {
+  animation: cardReveal 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.62s both;
+}
+
+/* Accordion rule items — slide in on expand */
+#rules ul li {
+  animation: accordionFade 0.35s ease both;
+}
+
+/* Accordion toggle button hover */
+#rules button.flex.w-full:hover div.text-xl,
+#rules button.flex.w-full:hover div.text-2xl {
+  color: #c1121f;
+  transition: color 0.2s;
+}
+
+/* Left-bar hover on doc items */
+#rules .border-l-2 {
+  transition: border-color 0.25s;
+}
+
+#rules .border-l-2:hover {
+  border-color: #c1121f !important;
+}
+
+/* "Start Team Entry" CTA pulse */
+#rules button.w-full.bg-white {
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+#rules button.w-full.bg-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   REGISTRATION FORM
+════════════════════════════════════════════════════════════════ */
+
+#register h2 {
+  animation: heroSlideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+/* Form container */
+#register > div > div:last-child {
+  animation: cardReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+}
+
+/* Progress bar segments */
+#register [style*="transition: background"] {
+  transition: background 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Input focus ring animation */
+#register input:focus,
+#register textarea:focus,
+#register select:focus {
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+/* Player card hover */
+.rf-player-card {
+  transition: border-color 0.22s, box-shadow 0.22s, transform 0.22s;
+}
+
+.rf-player-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+/* Add player button bounce on hover */
+.rf-add-player {
+  transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s !important;
+}
+
+.rf-add-player:hover {
+  transform: scale(1.01) !important;
+}
+
+/* Primary button ripple-ready */
+.rf-btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.rf-btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255,255,255,0.16) 50%,
+    transparent 65%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.rf-btn-primary:hover::after {
+  opacity: 1;
+  animation: shimmerSlide 1.6s linear infinite;
+}
+
+/* Checkbox verification glow */
+#register input[type="checkbox"]:checked {
+  animation: pulseRing 0.6s ease-out;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SCROLL-TRIGGERED REVEAL (Intersection Observer)
+   Add class .scroll-reveal to elements you want to animate in
+════════════════════════════════════════════════════════════════ */
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-left {
+  opacity: 0;
+  transform: translateX(-36px);
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Stagger delays for children */
+.scroll-stagger > *:nth-child(1) { transition-delay: 0ms; }
+.scroll-stagger > *:nth-child(2) { transition-delay: 80ms; }
+.scroll-stagger > *:nth-child(3) { transition-delay: 160ms; }
+.scroll-stagger > *:nth-child(4) { transition-delay: 240ms; }
+
+/* ════════════════════════════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════════════════════════════ */
+
+footer {
+  animation: heroSlideUp 0.5s ease both;
+}
+
+footer .text-lg {
+  transition: color 0.2s;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   GLOBAL MICRO-INTERACTIONS
+════════════════════════════════════════════════════════════════ */
+
+/* All red buttons get a subtle press */
+button,
+a[class*="bg-\[#c1121f\]"] {
+  transition: transform 0.15s, box-shadow 0.15s, background 0.18s;
+}
+
+button:active:not(:disabled),
+a[class*="bg-\[#c1121f\]"]:active {
+  transform: scale(0.97);
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
