@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface RuleCategory {
@@ -9,6 +9,32 @@ interface RuleCategory {
 
 export default function Rules() {
     const [openCategory, setOpenCategory] = useState<number | null>(0);
+    const sectionRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        const section = sectionRef.current;
+
+        if (!section) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    const elements = section.querySelectorAll('.rules-animate');
+                    elements.forEach((el, i) => {
+                        setTimeout(() => {
+                            el.classList.add('is-visible');
+                        }, i * 100);
+                    });
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        observer.observe(section);
+
+        return () => observer.disconnect();
+    }, []);
 
     const categories: RuleCategory[] = [
         {
@@ -47,13 +73,13 @@ export default function Rules() {
             <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
                 {/* Header */}
                 <div className="flex flex-col mb-16">
-                    <h2 className="text-[#c1121f] text-sm font-black tracking-widest uppercase mb-3 border-l-[3px] border-[#c1121f] pl-3">
+                    <h2 className="rules-animate text-[#c1121f] text-sm font-black tracking-widest uppercase mb-3 border-l-[3px] border-[#c1121f] pl-3 opacity-0 translate-x-[-20px] transition-all duration-700">
                         League Protocols
                     </h2>
-                    <h3 className="text-4xl md:text-5xl font-black text-gray-900 uppercase italic tracking-tight">
+                    <h3 className="rules-animate text-4xl md:text-5xl font-black text-gray-900 uppercase italic tracking-tight opacity-0 translate-x-[-20px] transition-all duration-700">
                         Rules Of The Court
                     </h3>
-                    <p className="max-w-xl text-gray-600 mt-6 leading-relaxed text-lg">
+                    <p className="rules-animate max-w-xl text-gray-600 mt-6 leading-relaxed text-lg opacity-0 translate-y-[20px] transition-all duration-700">
                         A cleaner competition starts with explicit eligibility, roster, and conduct standards. Review every protocol before submitting a team.
                     </p>
                 </div>
@@ -130,7 +156,7 @@ export default function Rules() {
                             <div className="text-[#c1121f] text-[10px] md:text-xs font-black uppercase tracking-widest mb-8">
                                 Mandatory Submission
                             </div>
-                            
+
                             <ul className="space-y-6">
                                 {[
                                     { label: "Voter's or Postal ID", sub: 'For all 21+ leagues' },

@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 
 interface Props {
     children: ReactNode;
@@ -10,7 +10,7 @@ interface Props {
 /* Initialise scroll-reveal once per mount */
 function useScrollReveal() {
     useEffect(() => {
-        const els = document.querySelectorAll<HTMLElement>('.scroll-reveal, .scroll-reveal-left');
+        const els = document.querySelectorAll<HTMLElement>('.scroll-reveal, .scroll-reveal-left, .scroll-reveal-right, .scroll-reveal-scale');
         if (!els.length) return;
 
         const observer = new IntersectionObserver(
@@ -22,7 +22,7 @@ function useScrollReveal() {
                     }
                 });
             },
-            { threshold: 0.12 },
+            { threshold: 0.12, rootMargin: '0px 0px -50px 0px' },
         );
 
         els.forEach((el) => observer.observe(el));
@@ -30,8 +30,49 @@ function useScrollReveal() {
     }, []);
 }
 
+/* Smooth scroll behavior */
+function useSmoothScroll() {
+    useEffect(() => {
+        const handleClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const link = target.closest('a[href^="#"]');
+            if (link) {
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                if (href) {
+                    const element = document.querySelector(href);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            }
+        };
+        document.addEventListener('click', handleClick);
+        return () => document.removeEventListener('click', handleClick);
+    }, []);
+}
+
+/* Parallax scroll effect */
+function useParallax() {
+    useEffect(() => {
+        const handleScroll = () => {
+            const scrolled = window.scrollY;
+            const parallaxElements = document.querySelectorAll<HTMLElement>('[data-parallax]');
+            parallaxElements.forEach((el) => {
+                const speed = parseFloat(el.dataset.parallax || '0.5');
+                const yPos = -(scrolled * speed);
+                el.style.transform = `translateY(${yPos}px)`;
+            });
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+}
+
 export default function LandingLayout({ children, brandColor = '#c1121f', logo }: Props) {
     useScrollReveal();
+    useSmoothScroll();
+    useParallax();
 
     return (
         <div className="w-full min-h-screen font-sans antialiased text-[#1a1a1a] bg-white selection:bg-[#c1121f] selection:text-white">
@@ -58,6 +99,17 @@ export default function LandingLayout({ children, brandColor = '#c1121f', logo }
                 .scroll-stagger > *:nth-child(2) { transition-delay: 80ms; }
                 .scroll-stagger > *:nth-child(3) { transition-delay: 160ms; }
                 .scroll-stagger > *:nth-child(4) { transition-delay: 240ms; }
+
+                /* Rules section animations */
+                .rules-animate {
+                    opacity: 0;
+                    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1),
+                                transform 0.7s cubic-bezier(0.16,1,0.3,1);
+                }
+                .rules-animate.is-visible {
+                    opacity: 1;
+                    transform: translateX(0) translateY(0) !important;
+                }
 
                 /* ── Nav animations ── */
                 @keyframes navSlideDown {

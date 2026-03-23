@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Props {
     tournament: {
@@ -10,9 +10,34 @@ interface Props {
     };
 }
 
+/* Particle component for floating basketballs */
+function FloatingParticle({ delay, size, left, duration }: { delay: number; size: number; left: string; duration: number }) {
+    return (
+        <div
+            className="absolute pointer-events-none opacity-10"
+            style={{
+                left,
+                bottom: '-20px',
+                width: `${size}px`,
+                height: `${size}px`,
+                animation: `floatUp ${duration}s ease-in-out ${delay}s infinite`,
+            }}
+        >
+            <svg viewBox="0 0 24 24" fill="currentColor" className="text-white w-full h-full">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1" fill="none" />
+                <path d="M12 2C12 2 12 12 12 22" stroke="currentColor" strokeWidth="1" fill="none" />
+                <path d="M2 12C2 12 12 12 22 12" stroke="currentColor" strokeWidth="1" fill="none" />
+                <path d="M4.93 4.93C4.93 4.93 12 12 19.07 19.07" stroke="currentColor" strokeWidth="1" fill="none" />
+                <path d="M19.07 4.93C19.07 4.93 12 12 4.93 19.07" stroke="currentColor" strokeWidth="1" fill="none" />
+            </svg>
+        </div>
+    );
+}
+
 export default function TournamentOverview({ tournament }: Props) {
     const headingRef = useRef<HTMLHeadingElement>(null);
     const subtitleRef = useRef<HTMLParagraphElement>(null);
+    const [isVisible, setIsVisible] = useState(false);
 
     /* ── Animated number counter for prize pool ── */
     useEffect(() => {
@@ -34,6 +59,23 @@ export default function TournamentOverview({ tournament }: Props) {
 
             setTimeout(() => requestAnimationFrame(tick), 900);
         });
+    }, []);
+
+    /* ── Intersection observer for visibility ── */
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                }
+            },
+            { threshold: 0.1 }
+        );
+
+        const section = document.getElementById('overview');
+        if (section) observer.observe(section);
+
+        return () => observer.disconnect();
     }, []);
 
     return (
@@ -78,6 +120,19 @@ export default function TournamentOverview({ tournament }: Props) {
                 @keyframes redOverlayPulse {
                     0%, 100% { opacity: 0.85; }
                     50%       { opacity: 0.92; }
+                }
+                @keyframes floatUp {
+                    0% {
+                        transform: translateY(0) rotate(0deg);
+                        opacity: 0.1;
+                    }
+                    50% {
+                        opacity: 0.15;
+                    }
+                    100% {
+                        transform: translateY(-700px) rotate(360deg);
+                        opacity: 0;
+                    }
                 }
 
                 .hero-badge {
@@ -136,6 +191,14 @@ export default function TournamentOverview({ tournament }: Props) {
                     animation: shimmer 2.8s linear infinite;
                 }
             `}</style>
+
+            {/* Floating basketball particles */}
+            <FloatingParticle delay={0} size={30} left="10%" duration={8} />
+            <FloatingParticle delay={1.5} size={20} left="25%" duration={10} />
+            <FloatingParticle delay={3} size={35} left="45%" duration={7} />
+            <FloatingParticle delay={0.5} size={25} left="65%" duration={9} />
+            <FloatingParticle delay={2} size={28} left="80%" duration={11} />
+            <FloatingParticle delay={4} size={22} left="90%" duration={8.5} />
 
             {/* Scan line */}
             <div className="scan-line" />

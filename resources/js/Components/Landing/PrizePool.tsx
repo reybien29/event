@@ -5,7 +5,8 @@ export default function PrizePool() {
 
     useEffect(() => {
         const section = sectionRef.current;
-        if (!section) return;
+
+        if (!section) {return;}
 
         const cards = section.querySelectorAll<HTMLElement>('.prize-card');
         const heading = section.querySelector<HTMLElement>('.prize-heading');
@@ -14,11 +15,14 @@ export default function PrizePool() {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    if (!entry.isIntersecting) return;
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
 
                     if (line) {
                         line.style.animation = 'prizeLineIn 0.5s cubic-bezier(0.16,1,0.3,1) both';
                     }
+
                     if (heading) {
                         heading.style.animation = 'prizeHeadIn 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both';
                     }
@@ -34,6 +38,7 @@ export default function PrizePool() {
         );
 
         observer.observe(section);
+
         return () => observer.disconnect();
     }, []);
 
