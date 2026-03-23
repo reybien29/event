@@ -20,9 +20,9 @@ class RegistrationController extends Controller
     public function store(RegistrationRequest $request)
     {
         $validated = $request->validated();
-        
-        $tournament = Tournament::active()->first();
-        $tournamentId = $tournament ? $tournament->id : 1;
+
+        $tournament = Tournament::active()->latest()->first() ?? Tournament::latest()->first();
+        $tournamentId = $tournament?->id ?? 1;
 
         return DB::transaction(function () use ($validated, $tournamentId) {
             $team = Team::create([
@@ -30,7 +30,7 @@ class RegistrationController extends Controller
                 'name' => $validated['team_name'],
                 'coach_name' => $validated['coach_name'],
                 'contact_number' => $validated['contact_number'],
-                'status' => 'pending',
+                'status' => 'approved',
             ]);
 
             foreach ($validated['players'] as $player) {

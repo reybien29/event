@@ -140,12 +140,13 @@ export default function Create() {
                                             Contact Number
                                         </label>
                                         <input
-                                            type="text"
+                                            type="tel"
+                                            inputMode="numeric"
                                             value={data.contact_number}
                                             onChange={(e) =>
                                                 setData(
                                                     'contact_number',
-                                                    e.target.value,
+                                                    e.target.value.replace(/\D/g, '')
                                                 )
                                             }
                                             className="w-full rounded border border-white/5 bg-zinc-900/50 p-4 text-white outline-none focus:border-brand-gold/50"
@@ -250,19 +251,31 @@ export default function Create() {
                                                     Jersey #
                                                 </label>
                                                 <input
-                                                    type="text"
+                                                    type="tel"
+                                                    inputMode="numeric"
+                                                    maxLength={2}
                                                     value={player.jersey_number}
                                                     onChange={(e) =>
                                                         handlePlayerChange(
                                                             index,
                                                             'jersey_number',
-                                                            e.target.value,
+                                                            e.target.value.replace(/\D/g, '').slice(0, 2)
                                                         )
                                                     }
-                                                    className="w-full border-b border-white/10 bg-transparent py-2 text-sm text-white outline-none focus:border-brand-gold"
+                                                    className="w-full rounded border border-white/5 bg-zinc-900/50 p-4 text-xs font-bold text-white outline-none focus:border-brand-gold/50"
                                                     placeholder="00"
                                                 />
-                                            </div>
+                                                {errors[
+                                                    `players.${index}.jersey_number` as any
+                                                ] && (
+                                                    <p className="mt-1 text-[10px] font-bold text-red-500">
+                                                        {
+                                                            errors[
+                                                                `players.${index}.jersey_number` as any
+                                                            ]
+                                                        }
+                                                    </p>
+                                                )}</div>
                                             <div>
                                                 <label className="mb-2 block text-[10px] font-bold tracking-widest text-zinc-600 uppercase">
                                                     Position

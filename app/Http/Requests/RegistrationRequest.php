@@ -25,10 +25,10 @@ class RegistrationRequest extends FormRequest
         return [
             'team_name' => 'required|string|max:255',
             'coach_name' => 'required|string|max:255',
-            'contact_number' => 'required|string|max:20',
+            'contact_number' => 'required|numeric',
             'players' => 'required|array|min:5|max:12', // Critical: 5–12 dynamic player inputs
             'players.*.name' => 'required|string|max:255',
-            'players.*.jersey_number' => 'nullable|integer',
+            'players.*.jersey_number' => 'required|numeric|min:0|max:99',
             'players.*.position' => 'nullable|string|max:100',
             'players.*.birth_date' => 'nullable|date',
             'agreed_to_terms' => 'required|accepted', // Validation Gate

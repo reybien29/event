@@ -13,11 +13,12 @@ interface Team {
 
 interface Props {
     teams: Team[];
+    hasBrackets?: boolean;
 }
 
-export default function TeamsIndex({ teams }: Props) {
+export default function TeamsIndex({ teams, hasBrackets = false }: Props) {
     usePoll(3000, {
-        only: ['teams'],
+        only: ['teams', 'hasBrackets'],
     });
 
     const handleGenerateBrackets = () => {
@@ -30,6 +31,31 @@ export default function TeamsIndex({ teams }: Props) {
         }
 
         router.post(generateBrackets.url(), {}, { preserveScroll: true });
+    };
+
+    const handleDiscardBrackets = () => {
+        if (
+            !window.confirm(
+                'Are you sure you want to completely discard the generated fixtures and reset the standings? This action cannot be undone.'
+            )
+        ) {
+            return;
+        }
+
+        router.delete('/admin/teams/brackets/discard', { preserveScroll: true });
+    };
+
+
+    const handleDeleteTeam = (id: number) => {
+        if (
+            !window.confirm(
+                'Are you sure you want to delete this team? This action cannot be undone.'
+            )
+        ) {
+            return;
+        }
+
+        router.delete(`/admin/teams/${id}`, { preserveScroll: true });
     };
 
     return (
@@ -53,18 +79,41 @@ export default function TeamsIndex({ teams }: Props) {
                             </div>
                         </div>
                         <p className="text-sm leading-relaxed text-zinc-300">
-                            Review registered squads and trigger bracket
-                            generation when enough approved teams are ready to
-                            compete.
+                            AI-powered bracket generators create tournament
+                            brackets, optimize March Madness predictions, or
+                            design custom structures for competitions using
+                            data analysis.
                         </p>
-                        <button
-                            type="button"
-                            onClick={handleGenerateBrackets}
-                            disabled={teams.length < 2}
-                            className="inline-flex items-center justify-center rounded-full bg-brand-gold px-5 py-3 text-[10px] font-black tracking-[0.25em] text-black uppercase shadow-lg shadow-brand-gold/20 transition-all hover:bg-brand-gold-glow disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                            AI Generation Bracketing
-                        </button>
+                        <div className="flex flex-col gap-3">
+                            <button
+                                type="button"
+                                onClick={handleGenerateBrackets}
+                                disabled={hasBrackets || teams.length < 8 || teams.length > 10}
+                                className={
+                                    hasBrackets
+                                        ? 'inline-flex cursor-not-allowed items-center justify-center rounded-full bg-zinc-800 px-5 py-3 text-[10px] font-black tracking-[0.25em] text-zinc-500 uppercase opacity-60 shadow-lg shadow-zinc-900/20'
+                                        : 'inline-flex items-center justify-center rounded-full bg-brand-gold px-5 py-3 text-[10px] font-black tracking-[0.25em] text-black uppercase shadow-lg shadow-brand-gold/20 transition-all hover:bg-brand-gold-glow disabled:cursor-not-allowed disabled:opacity-60'
+                                }
+                            >
+                                AI-Powered Bracket Generators
+                            </button>
+
+                            {hasBrackets && (
+                                <button
+                                    type="button"
+                                    onClick={handleDiscardBrackets}
+                                    className="inline-flex flex-1 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10 px-5 py-3 text-[10px] font-black tracking-[0.25em] text-red-500 uppercase transition-colors hover:bg-red-500/20"
+                                >
+                                    Discard Bracketing
+                                </button>
+                            )}
+
+                            {!hasBrackets && (
+                                <span className="text-[9px] font-bold tracking-widest text-brand-gold/60 uppercase">
+                                    * Requirement: 8–10 registered teams
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </BentoCard>
 
@@ -98,6 +147,9 @@ export default function TeamsIndex({ teams }: Props) {
                                     </th>
                                     <th className="px-4 pb-4 text-right font-black">
                                         Status
+                                    </th>
+                                    <th className="px-4 pb-4 text-right font-black">
+                                        Actions
                                     </th>
                                 </tr>
                             </thead>
@@ -135,6 +187,15 @@ export default function TeamsIndex({ teams }: Props) {
                                             >
                                                 {team.status}
                                             </span>
+                                        </td>
+                                        <td className="px-4 py-5 text-right">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteTeam(team.id)}
+                                                className="inline-flex rounded-md border border-red-500/20 bg-red-500/10 px-2.5 py-1 text-[9px] font-black tracking-widest text-red-500 uppercase transition-colors hover:bg-red-500/20"
+                                            >
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

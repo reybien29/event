@@ -31,10 +31,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/teams', [TeamController::class, 'index'])->name('teams.index');
     Route::post('/teams/brackets/generate', [TeamController::class, 'generateBrackets'])->name('teams.brackets.generate');
+    Route::delete('/teams/brackets/discard', [TeamController::class, 'discardBrackets'])->name('teams.brackets.discard');
+    Route::delete('/teams/{team}', [TeamController::class, 'destroy'])->name('teams.destroy');
     Route::get('/stats', [StatsController::class, 'index'])->name('stats.index');
     Route::put('/stats/tournament/{tournament}', [StatsController::class, 'update'])->name('stats.update');
-    Route::post('/stats/tournament/{tournament}/facebook', [StatsController::class, 'publish'])->name('stats.publish');
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
     Route::get('/games', [GameController::class, 'index'])->name('games.index');
+    Route::post('/games/{game}/result', [GameController::class, 'updateResult'])->name('games.result.update');
 });

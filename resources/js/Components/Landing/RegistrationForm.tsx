@@ -1,5 +1,5 @@
-import { useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, useForm } from '@inertiajs/react';
+import { useRef, useState } from 'react';
 
 interface Props {
     fixedFee: string;
@@ -62,6 +62,15 @@ const errorStyle: React.CSSProperties = {
 
 export default function RegistrationForm({ fixedFee }: Props) {
     const [step, setStep] = useState(1);
+    const formRef = useRef<HTMLDivElement>(null);
+
+    const handleStep = (s: number) => {
+        setStep(s);
+        // Ensure smooth transition and viewing position
+        setTimeout(() => {
+            formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 10);
+    };
     const { data, setData, post, processing, errors } = useForm({
         team_name: '',
         coach_name: '',
@@ -88,7 +97,7 @@ export default function RegistrationForm({ fixedFee }: Props) {
     const progress = (step / 3) * 100;
 
     return (
-        <div id="register" style={{ position: 'relative' }}>
+        <div id="register" ref={formRef} style={{ position: 'relative' }}>
 
             <style>{`
                 @keyframes fadeUp {
@@ -279,8 +288,9 @@ export default function RegistrationForm({ fixedFee }: Props) {
                                     <label style={labelStyle}>Contact Number</label>
                                     <input
                                         type="tel"
+                                        inputMode="numeric"
                                         value={data.contact_number}
-                                        onChange={(e) => setData('contact_number', e.target.value)}
+                                        onChange={(e) => setData('contact_number', e.target.value.replace(/\D/g, ''))}
                                         className="rf-input"
                                         style={inputStyle}
                                         placeholder="09xx xxx xxxx"
@@ -292,7 +302,7 @@ export default function RegistrationForm({ fixedFee }: Props) {
                             <div style={{ marginTop: '0.5rem' }}>
                                 <button
                                     type="button"
-                                    onClick={() => setStep(2)}
+                                    onClick={() => handleStep(2)}
                                     disabled={!data.team_name}
                                     className="rf-btn-primary"
                                 >
@@ -371,14 +381,18 @@ export default function RegistrationForm({ fixedFee }: Props) {
                                         <div style={{ width: '80px' }}>
                                             <label style={labelStyle}>Jersey #</label>
                                             <input
-                                                type="text"
+                                                type="tel"
                                                 inputMode="numeric"
+                                                maxLength={2}
                                                 value={player.jersey_number}
-                                                onChange={(e) => handlePlayer(i, 'jersey_number', e.target.value)}
+                                                onChange={(e) => handlePlayer(i, 'jersey_number', e.target.value.replace(/\D/g, '').slice(0, 2))}
                                                 className="rf-input"
                                                 style={inputStyle}
                                                 placeholder="00"
                                             />
+                                            {errors[`players.${i}.jersey_number` as any] && (
+                                                <p style={errorStyle}>{errors[`players.${i}.jersey_number` as any]}</p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -422,12 +436,12 @@ export default function RegistrationForm({ fixedFee }: Props) {
 
                             {/* Navigation */}
                             <div style={{ display: 'flex', gap: '10px', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                                <button type="button" onClick={() => setStep(1)} className="rf-btn-ghost">
+                                <button type="button" onClick={() => handleStep(1)} className="rf-btn-ghost">
                                     ← Back
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => setStep(3)}
+                                    onClick={() => handleStep(3)}
                                     disabled={data.players.length < 5}
                                     className="rf-btn-primary"
                                     style={{ flex: 2.5 }}
@@ -547,8 +561,26 @@ export default function RegistrationForm({ fixedFee }: Props) {
                                     </p>
                                 )}
 
+                                {/* Summary of other errors (UX safety) */}
+                                {Object.keys(errors).length > 0 && (
+                                    <div style={{
+                                        marginTop: '1.5rem', padding: '1rem',
+                                        borderRadius: '8px', background: T.errorBg,
+                                        border: `1px solid ${T.error}`,
+                                    }}>
+                                        <p style={{ ...errorStyle, marginTop: 0 }}>
+                                            Registration failed with {Object.keys(errors).length} error(s). Please review your entries.
+                                        </p>
+                                        <ul style={{ margin: '8px 0 0', paddingLeft: '20px', fontSize: '11px', color: T.error }}>
+                                            {Object.entries(errors).map(([key, val]) => (
+                                                <li key={key} style={{ marginBottom: '4px' }}>{val}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
                                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                                    <button type="button" onClick={() => setStep(2)} className="rf-btn-ghost">
+                                    <button type="button" onClick={() => handleStep(2)} className="rf-btn-ghost">
                                         ← Review Roster
                                     </button>
                                     <button

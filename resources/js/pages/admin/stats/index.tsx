@@ -1,9 +1,6 @@
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
-import {
-    publish as publishStats,
-    update as updateStats,
-} from '@/actions/App/Http/Controllers/Admin/StatsController';
+import { update as updateStats } from '@/actions/App/Http/Controllers/Admin/StatsController';
 import { BentoCard } from '@/Components/ui/bento';
 import AdminLayout from '../../../Layouts/AdminLayout';
 
@@ -38,12 +35,10 @@ interface Tournament {
     start_date: string | null;
     end_date: string | null;
     teams: TournamentTeam[];
-    facebook_preview: string;
 }
 
 interface Props {
     tournaments: Tournament[];
-    facebook_configured: boolean;
 }
 
 type FormStanding = {
@@ -62,7 +57,7 @@ type FormState = {
 
 type EditableField = Exclude<keyof FormStanding, 'team_id'>;
 
-export default function StatsIndex({ tournaments, facebook_configured }: Props) {
+export default function StatsIndex({ tournaments }: Props) {
     return (
         <AdminLayout title="Stats Management">
             <Head title="Stats Management" />
@@ -74,18 +69,9 @@ export default function StatsIndex({ tournaments, facebook_configured }: Props) 
                             Manual Standings Control
                         </h2>
                         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-400">
-                            Update tournament standings manually, review the
-                            generated Facebook copy, then publish the current
-                            table to the official page when you are ready.
+                            Update tournament standings manually. Save updates to immediately reflect on the dashboard and main page.
                         </p>
                     </div>
-                    <span
-                        className={`inline-flex rounded-full px-4 py-2 text-[10px] font-black tracking-[0.25em] uppercase ${facebook_configured ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-300' : 'border border-red-500/20 bg-red-500/10 text-red-300'}`}
-                    >
-                        {facebook_configured
-                            ? 'Facebook Ready'
-                            : 'Facebook Not Configured'}
-                    </span>
                 </div>
             </BentoCard>
 
@@ -100,7 +86,6 @@ export default function StatsIndex({ tournaments, facebook_configured }: Props) 
                         <TournamentStatsCard
                             key={tournament.id}
                             tournament={tournament}
-                            facebookConfigured={facebook_configured}
                         />
                     ))}
                 </div>
@@ -109,14 +94,8 @@ export default function StatsIndex({ tournaments, facebook_configured }: Props) 
     );
 }
 
-function TournamentStatsCard({
-    tournament,
-    facebookConfigured,
-}: {
-    tournament: Tournament;
-    facebookConfigured: boolean;
-}) {
-    const { data, setData, put, post, processing, errors, isDirty } =
+function TournamentStatsCard({ tournament }: { tournament: Tournament }) {
+    const { data, setData, put, processing, errors } =
         useForm<FormState>({
             standings: tournament.teams.map((team) => ({
                 team_id: team.id,
@@ -156,30 +135,10 @@ function TournamentStatsCard({
         saveStandings();
     };
 
-    const handlePublish = () => {
-        const publishNow = () => {
-            post(publishStats.url({ tournament: tournament.id }), {
-                preserveScroll: true,
-            });
-        };
-
-        if (isDirty) {
-            saveStandings(publishNow);
-
-            return;
-        }
-
-        publishNow();
-    };
-
-    const livePreview =
-        buildFacebookPreview(tournament, data.standings) ||
-        tournament.facebook_preview;
-
     return (
         <form
             onSubmit={handleSubmit}
-            className="grid grid-cols-1 gap-6 xl:grid-cols-[1.7fr_1fr]"
+            className="flex flex-col gap-6"
         >
             <BentoCard padding="md" variant="default">
                 <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -196,17 +155,9 @@ function TournamentStatsCard({
                         <button
                             type="submit"
                             disabled={processing}
-                            className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[10px] font-black tracking-[0.2em] text-zinc-100 uppercase transition-all hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-60"
+                            className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-6 py-3 text-[10px] font-black tracking-[0.2em] text-zinc-100 uppercase transition-all hover:bg-white/[0.06] hover:text-brand-gold disabled:cursor-not-allowed disabled:opacity-60"
                         >
                             {processing ? 'Saving...' : 'Save Standings'}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handlePublish}
-                            disabled={processing}
-                            className="inline-flex items-center justify-center rounded-xl bg-brand-gold px-4 py-3 text-[10px] font-black tracking-[0.2em] text-black uppercase shadow-lg shadow-brand-gold/20 transition-all hover:bg-brand-gold-glow disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                            Post to Official Facebook Page
                         </button>
                     </div>
                 </div>
@@ -216,21 +167,21 @@ function TournamentStatsCard({
                     leaving this page.
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto rounded-xl border border-white/5">
                     <table className="w-full text-left">
-                        <thead>
-                            <tr className="border-b border-white/5 text-[10px] font-black tracking-widest text-zinc-600 uppercase">
-                                <th className="pb-4">Team</th>
-                                <th className="pb-4">Group</th>
-                                <th className="pb-4 text-center">W</th>
-                                <th className="pb-4 text-center">L</th>
-                                <th className="pb-4 text-center">D</th>
-                                <th className="pb-4 text-center">Pts</th>
-                                <th className="pb-4 text-center">Quot</th>
-                                <th className="pb-4 text-right">Played</th>
+                        <thead className="bg-zinc-900/40 text-[10px] font-black tracking-widest text-brand-gold uppercase">
+                            <tr>
+                                <th className="px-4 py-3">Team</th>
+                                <th className="px-4 py-3 text-center">Group</th>
+                                <th className="px-4 py-3 text-center">W</th>
+                                <th className="px-4 py-3 text-center">D</th>
+                                <th className="px-4 py-3 text-center">L</th>
+                                <th className="px-4 py-3 text-center">Pts</th>
+                                <th className="px-4 py-3 text-center">Quot</th>
+                                <th className="px-4 py-3 text-center">MP</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5">
+                        <tbody className="divide-y divide-white/5 bg-zinc-900/20">
                             {tournament.teams.map((team, index) => {
                                 const standing = data.standings[index];
                                 const played =
@@ -243,13 +194,20 @@ function TournamentStatsCard({
                                 );
 
                                 return (
-                                    <tr key={team.id} className="align-top">
-                                        <td className="py-4 pr-4">
-                                            <div className="text-sm font-black tracking-tight text-white uppercase">
-                                                {team.name}
-                                            </div>
-                                            <div className="mt-1 text-[10px] font-bold tracking-widest text-zinc-500 uppercase">
-                                                Coach {team.coach_name}
+                                    <tr key={team.id} className="transition-colors hover:bg-white/[0.02]">
+                                        <td className="px-4 py-3 align-middle">
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-[10px] font-bold text-zinc-600">
+                                                    {index + 1}
+                                                </span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-black text-white uppercase">
+                                                        {team.name}
+                                                    </span>
+                                                    <span className="mt-0.5 text-[9px] font-bold tracking-widest text-zinc-500 uppercase">
+                                                        Coach {team.coach_name}
+                                                    </span>
+                                                </div>
                                             </div>
                                             {rowError ? (
                                                 <div className="mt-2 text-[11px] font-bold text-red-400">
@@ -257,7 +215,7 @@ function TournamentStatsCard({
                                                 </div>
                                             ) : null}
                                         </td>
-                                        <td className="py-4 pr-3">
+                                        <td className="px-4 py-3 text-center align-middle">
                                             <input
                                                 type="text"
                                                 value={standing.group_name}
@@ -268,11 +226,11 @@ function TournamentStatsCard({
                                                         event.target.value,
                                                     )
                                                 }
-                                                className="h-11 w-28 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-xs font-bold tracking-widest text-white uppercase transition-all outline-none focus:border-brand-gold"
+                                                className="h-10 w-24 rounded-lg border border-white/10 bg-zinc-900/50 px-2 text-center text-[10px] font-bold tracking-widest text-white uppercase transition-all outline-none focus:border-brand-gold focus:bg-white/[0.02]"
                                                 placeholder="Group A"
                                             />
                                         </td>
-                                        <td className="py-4 pr-3 text-center">
+                                        <td className="px-4 py-3 text-center align-middle">
                                             <NumberInput
                                                 value={standing.wins}
                                                 onChange={(value) =>
@@ -284,19 +242,7 @@ function TournamentStatsCard({
                                                 }
                                             />
                                         </td>
-                                        <td className="py-4 pr-3 text-center">
-                                            <NumberInput
-                                                value={standing.losses}
-                                                onChange={(value) =>
-                                                    updateField(
-                                                        index,
-                                                        'losses',
-                                                        value,
-                                                    )
-                                                }
-                                            />
-                                        </td>
-                                        <td className="py-4 pr-3 text-center">
+                                        <td className="px-4 py-3 text-center align-middle">
                                             <NumberInput
                                                 value={standing.draws}
                                                 onChange={(value) =>
@@ -308,7 +254,19 @@ function TournamentStatsCard({
                                                 }
                                             />
                                         </td>
-                                        <td className="py-4 pr-3 text-center">
+                                        <td className="px-4 py-3 text-center align-middle">
+                                            <NumberInput
+                                                value={standing.losses}
+                                                onChange={(value) =>
+                                                    updateField(
+                                                        index,
+                                                        'losses',
+                                                        value,
+                                                    )
+                                                }
+                                            />
+                                        </td>
+                                        <td className="px-4 py-3 text-center align-middle">
                                             <NumberInput
                                                 value={standing.points}
                                                 onChange={(value) =>
@@ -320,7 +278,7 @@ function TournamentStatsCard({
                                                 }
                                             />
                                         </td>
-                                        <td className="py-4 pr-3 text-center">
+                                        <td className="px-4 py-3 text-center align-middle">
                                             <input
                                                 type="number"
                                                 min="0"
@@ -333,10 +291,10 @@ function TournamentStatsCard({
                                                         event.target.value,
                                                     )
                                                 }
-                                                className="h-11 w-24 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-center text-xs font-bold tracking-widest text-white transition-all outline-none focus:border-brand-gold"
+                                                className="h-10 w-20 rounded-lg border border-white/10 bg-zinc-900/50 px-2 text-center text-[10px] font-bold tracking-widest text-white transition-all outline-none focus:border-brand-gold focus:bg-white/[0.02]"
                                             />
                                         </td>
-                                        <td className="py-4 text-right text-sm font-black text-brand-gold">
+                                        <td className="px-4 py-3 text-center align-middle text-xs font-black text-brand-gold">
                                             {played}
                                         </td>
                                     </tr>
@@ -346,43 +304,6 @@ function TournamentStatsCard({
                     </table>
                 </div>
             </BentoCard>
-
-            <div className="space-y-6">
-                <BentoCard padding="md" variant="accent" glow>
-                    <div className="flex items-center justify-between gap-4">
-                        <h4 className="text-sm font-black tracking-widest text-brand-gold uppercase">
-                            Facebook Preview
-                        </h4>
-                        <span
-                            className={`rounded-full px-3 py-1 text-[10px] font-black tracking-[0.2em] uppercase ${facebookConfigured ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-300' : 'border border-red-500/20 bg-red-500/10 text-red-300'}`}
-                        >
-                            {facebookConfigured
-                                ? 'Connected'
-                                : 'Needs Env Keys'}
-                        </span>
-                    </div>
-                    <pre className="mt-4 max-h-[420px] overflow-y-auto rounded-2xl border border-white/5 bg-[#0c1628] p-4 text-xs leading-6 font-medium whitespace-pre-wrap text-zinc-200">
-                        {livePreview}
-                    </pre>
-                </BentoCard>
-
-                <BentoCard padding="md" variant="subtle">
-                    <h4 className="text-sm font-black tracking-widest text-brand-gold uppercase">
-                        Posting Notes
-                    </h4>
-                    <div className="mt-4 space-y-3 text-sm leading-relaxed text-zinc-400">
-                        <p>
-                            Unsaved edits are saved automatically before posting
-                            so the Facebook copy matches the stored standings.
-                        </p>
-                        <p>
-                            If posting fails, verify `FACEBOOK_PAGE_ID`,
-                            `FACEBOOK_PAGE_ACCESS_TOKEN`, and the configured
-                            Graph API version.
-                        </p>
-                    </div>
-                </BentoCard>
-            </div>
         </form>
     );
 }
@@ -401,7 +322,7 @@ function NumberInput({
             step="1"
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            className="h-11 w-16 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-center text-xs font-bold tracking-widest text-white transition-all outline-none focus:border-brand-gold"
+            className="h-10 w-14 rounded-lg border border-white/10 bg-zinc-900/50 px-2 text-center text-[10px] font-bold tracking-widest text-white transition-all outline-none focus:border-brand-gold focus:bg-white/[0.02]"
         />
     );
 }
@@ -419,58 +340,6 @@ function getRowError(
         errors[`standings.${index}.quotient`] ??
         null
     );
-}
-
-function buildFacebookPreview(
-    tournament: Tournament,
-    standings: FormStanding[],
-): string {
-    const rows = tournament.teams.map((team) => {
-        const formStanding = standings.find(
-            (standing) => standing.team_id === team.id,
-        );
-        const wins = toNumber(formStanding?.wins);
-        const losses = toNumber(formStanding?.losses);
-        const draws = toNumber(formStanding?.draws);
-        const points = toNumber(formStanding?.points);
-        const quotient = toDecimal(formStanding?.quotient);
-        const groupName = formStanding?.group_name?.trim() || '';
-
-        return {
-            teamName: team.name,
-            wins,
-            losses,
-            draws,
-            points,
-            quotient,
-            groupName,
-        };
-    });
-
-    rows.sort((left, right) => {
-        return (
-            right.points - left.points ||
-            right.quotient - left.quotient ||
-            right.wins - left.wins ||
-            left.teamName.localeCompare(right.teamName)
-        );
-    });
-
-    const heading = `${tournament.name} Standings Update`;
-
-    return [
-        heading,
-        '',
-        ...rows.map((row, index) => {
-            const record =
-                row.draws > 0
-                    ? `${row.wins}-${row.losses}-${row.draws}`
-                    : `${row.wins}-${row.losses}`;
-            const groupSuffix = row.groupName ? ` | ${row.groupName}` : '';
-
-            return `${index + 1}. ${row.teamName} | ${record} | ${row.points} pts | Quotient ${row.quotient.toFixed(4)}${groupSuffix}`;
-        }),
-    ].join('\n');
 }
 
 function formatTournamentWindow(tournament: TournamentInfo): string {
@@ -495,12 +364,6 @@ function formatDate(value: string): string {
 
 function toNumber(value?: string | null): number {
     const parsed = Number.parseInt(value ?? '0', 10);
-
-    return Number.isNaN(parsed) ? 0 : parsed;
-}
-
-function toDecimal(value?: string | null): number {
-    const parsed = Number.parseFloat(value ?? '0');
 
     return Number.isNaN(parsed) ? 0 : parsed;
 }

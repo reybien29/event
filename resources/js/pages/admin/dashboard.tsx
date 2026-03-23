@@ -4,12 +4,43 @@ import { index as teamsIndex } from '@/actions/App/Http/Controllers/Admin/TeamCo
 import { BentoCard, BentoGrid } from '@/Components/ui/bento';
 import AdminLayout from '../../Layouts/AdminLayout';
 import { cn } from '../../lib/utils';
+import RoundRobinView from '../../Components/Admin/RoundRobinView';
 
 interface Team {
     id: number;
     name: string;
     coach_name: string;
     status: string;
+    created_at: string;
+}
+
+interface Game {
+    id: number;
+    team_a: Team;
+    team_b: Team;
+    court_name: string;
+    scheduled_at: string;
+    group_name: string;
+    status: string;
+    team_a_score: number | null;
+    team_b_score: number | null;
+}
+
+interface Tournament {
+    id: number;
+    name: string;
+}
+
+interface TeamStanding {
+    id: number;
+    name: string;
+    group_name: string | null;
+    wins: number;
+    losses: number;
+    draws: number;
+    points: number;
+    quotient: number;
+    played: number;
 }
 
 interface Props {
@@ -19,12 +50,22 @@ interface Props {
         total_payments: string;
         pending_registrations: number;
     };
-    recent_teams: Team[];
+    recent_teams: {
+        data: Team[];
+        links: { url: string | null; label: string; active: boolean }[];
+        current_page: number;
+        total: number;
+        from: number;
+        to: number;
+    };
+    bracket: Game[];
+    active_tournament: Tournament | null;
+    standings: TeamStanding[];
 }
 
-export default function Dashboard({ stats, recent_teams }: Props) {
+export default function Dashboard({ stats, recent_teams, bracket, active_tournament, standings }: Props) {
     usePoll(3000, {
-        only: ['stats', 'recent_teams'],
+        only: ['stats', 'recent_teams', 'bracket', 'standings'],
     });
 
     return (
@@ -59,6 +100,34 @@ export default function Dashboard({ stats, recent_teams }: Props) {
                     icon="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                     color="text-brand-gold"
                 />
+
+                {/* Bracket Generation Section */}
+                {(bracket.length > 0 || standings?.length > 0) && (
+                    <BentoCard
+                        className="md:col-span-12"
+                        padding="lg"
+                        variant="default"
+                    >
+                        <div className="mb-8 flex items-center justify-between border-b border-white/5 pb-6">
+                            <div>
+                                <h3 className="text-[10px] font-black tracking-[0.25em] text-brand-gold uppercase">
+                                    Tournament Fixtures
+                                </h3>
+                                <div className="mt-2 text-2xl font-black tracking-tighter text-white uppercase">
+                                    {active_tournament?.name || 'Tournament'} • Group Stage / Round Robin
+                                </div>
+                            </div>
+                            <div className="hidden md:block">
+                                <span className="inline-flex items-center gap-2 rounded-full bg-brand-gold/10 px-4 py-2 text-[10px] font-black text-brand-gold uppercase tracking-widest">
+                                    <span className="h-2 w-2 animate-pulse rounded-full bg-brand-gold"></span>
+                                    AI Optimized
+                                </span>
+                            </div>
+                        </div>
+
+                        <RoundRobinView bracket={bracket} standings={standings} />
+                    </BentoCard>
+                )}
 
                 <BentoCard
                     className="md:col-span-12 xl:col-span-4"
@@ -116,35 +185,49 @@ export default function Dashboard({ stats, recent_teams }: Props) {
                         </div>
                     </div>
 
-                    {recent_teams.length === 0 ? (
+                    {recent_teams.data.length === 0 ? (
                         <div className="rounded-[1.5rem] border border-dashed border-white/10 px-6 py-16 text-center text-xs font-semibold tracking-wider text-zinc-500 uppercase">
                             No recent registrations yet.
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left">
+                            <table className="w-full text-left font-sans">
                                 <thead>
-                                    <tr className="border-b border-white/5 text-[10px] font-black text-zinc-600 uppercase">
-                                        <th className="pb-4">Team Name</th>
-
+                                    <tr className="border-b border-white/5 text-[10px] font-black tracking-widest text-zinc-600 uppercase">
+                                        <th className="pb-4">Team Details</th>
                                         <th className="pb-4">Coach</th>
-                                        <th className="pb-4 text-right">
-                                            Status
-                                        </th>
+                                        <th className="pb-4">Registered</th>
+                                        <th className="pb-4 text-right">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {recent_teams.map((team) => (
+                                    {recent_teams.data.map((team) => (
                                         <tr key={team.id} className="group">
-                                            <td className="max-w-[150px] truncate py-4 text-sm font-bold tracking-tight text-white transition-colors group-hover:text-brand-gold">
-                                                {team.name}
+                                            <td className="max-w-[200px] py-4 group-hover:bg-white/[0.01]">
+                                                <div className="truncate text-sm font-black tracking-tighter text-white transition-colors group-hover:text-brand-gold">
+                                                    {team.name}
+                                                </div>
+                                                <div className="text-[10px] font-bold text-zinc-600 tracking-widest uppercase">
+                                                    ID: #{team.id.toString().padStart(4, '0')}
+                                                </div>
                                             </td>
 
-                                            <td className="py-4 text-sm font-medium text-zinc-400">
+                                            <td className="py-4 text-xs font-black tracking-tighter text-zinc-100 uppercase italic">
                                                 {team.coach_name}
                                             </td>
+                                            <td className="py-4 text-[10px] font-bold tracking-tighter text-brand-gold/60 uppercase">
+                                                {new Date(team.created_at).toLocaleString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                    minute: '2-digit',
+                                                    hour12: true
+                                                })}
+                                            </td>
                                             <td className="py-4 text-right">
-                                                <span className="inline-flex rounded-full bg-brand-gold/10 px-3 py-1 text-[10px] font-black text-brand-gold uppercase">
+                                                <span className={`inline-flex rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-widest ${
+                                                    team.status === 'approved' ? 'bg-green-500/10 text-green-500' : 'bg-brand-gold/10 text-brand-gold'
+                                                }`}>
                                                     {team.status}
                                                 </span>
                                             </td>
@@ -152,6 +235,32 @@ export default function Dashboard({ stats, recent_teams }: Props) {
                                     ))}
                                 </tbody>
                             </table>
+
+                            {/* Enhanced Pagination Controls */}
+                            <div className="mt-8 flex items-center justify-between border-t border-white/5 pt-6">
+                                <div className="text-[10px] font-black tracking-widest text-zinc-600 uppercase">
+                                    Displaying {recent_teams.from}–{recent_teams.to} of {recent_teams.total} entries
+                                </div>
+                                <div className="flex gap-1.5 flex-wrap justify-end">
+                                    {recent_teams.links.map((link, i) => (
+                                        <Link
+                                            key={i}
+                                            href={link.url || '#'}
+                                            only={['recent_teams']}
+                                            preserveScroll
+                                            prefetch="hover"
+                                            className={cn(
+                                                "inline-flex h-8 min-w-[32px] items-center justify-center rounded-lg px-2.5 text-[9px] font-black tracking-widest uppercase transition-all",
+                                                link.active 
+                                                    ? "bg-brand-gold text-black shadow-lg shadow-brand-gold/20" 
+                                                    : "bg-white/[0.03] text-zinc-500 border border-white/5 hover:bg-white/[0.08] hover:text-white",
+                                                !link.url && "opacity-20 cursor-not-allowed hidden sm:inline-flex"
+                                            )}
+                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     )}
                 </BentoCard>

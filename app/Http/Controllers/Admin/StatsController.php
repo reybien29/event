@@ -6,17 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Standing;
 use App\Models\Team;
 use App\Models\Tournament;
-use App\Services\StandingsFacebookPublisher;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
-use RuntimeException;
 
 class StatsController extends Controller
 {
-    public function index(StandingsFacebookPublisher $standingsFacebookPublisher): Response
+    public function index(): Response
     {
         $tournaments = Tournament::query()
             ->withCount('teams')
@@ -28,7 +26,7 @@ class StatsController extends Controller
             ->whereHas('teams')
             ->orderBy('name')
             ->get()
-            ->map(function (Tournament $tournament) use ($standingsFacebookPublisher): array {
+            ->map(function (Tournament $tournament): array {
                 return [
                     'id' => $tournament->id,
                     'name' => $tournament->name,
@@ -57,15 +55,12 @@ class StatsController extends Controller
                             ],
                         ];
                     })->values(),
-                    'facebook_preview' => rtrim($standingsFacebookPublisher->buildTournamentMessage($tournament)),
                 ];
             })
             ->values();
 
         return Inertia::render('admin/stats/index', [
             'tournaments' => $tournaments,
-            'facebook_configured' => (bool) config('services.facebook.page_id')
-                && (bool) config('services.facebook.page_access_token'),
         ]);
     }
 
@@ -110,20 +105,5 @@ class StatsController extends Controller
         return redirect()
             ->route('admin.stats.index')
             ->with('success', "Standings updated for {$tournament->name}.");
-    }
-
-    public function publish(Tournament $tournament, StandingsFacebookPublisher $standingsFacebookPublisher): RedirectResponse
-    {
-        try {
-            $standingsFacebookPublisher->publishTournamentStandings($tournament);
-        } catch (RuntimeException $exception) {
-            return redirect()
-                ->route('admin.stats.index')
-                ->with('error', $exception->getMessage());
-        }
-
-        return redirect()
-            ->route('admin.stats.index')
-            ->with('success', "Standings for {$tournament->name} were posted to Facebook.");
     }
 }

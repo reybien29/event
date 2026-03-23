@@ -52,7 +52,7 @@ export default function Welcome({ tournament }: Props) {
                 />
                 <PrizePool />
                 <Rules />
-                
+
                 <div className="bg-white py-24">
                     <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
                         <RegistrationForm
