@@ -1,13 +1,54 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22-bookworm-slim AS frontend
+# PHP + Node so Vite can run @laravel/vite-plugin-wayfinder (php artisan wayfinder:generate).
+FROM php:8.4-cli-bookworm AS frontend
 
 WORKDIR /app
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        git \
+        gnupg \
+        libicu-dev \
+        libonig-dev \
+        libpng-dev \
+        libpq-dev \
+        libxml2-dev \
+        libzip-dev \
+        unzip \
+        zip \
+    && docker-php-ext-configure intl \
+    && docker-php-ext-install -j"$(nproc)" \
+        bcmath \
+        intl \
+        mbstring \
+        opcache \
+        pdo_pgsql \
+        pdo_sqlite \
+        zip \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
 
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit
 
 COPY . .
+
+RUN mkdir -p database \
+    && touch database/database.sqlite \
+    && cp .env.example .env \
+    && printf "\nSESSION_DRIVER=array\nCACHE_STORE=array\n" >> .env \
+    && php artisan key:generate --force \
+    && php artisan package:discover --ansi
+
 RUN npm run build
 
 FROM php:8.4-fpm-bookworm
