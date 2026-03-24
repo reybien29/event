@@ -19,6 +19,9 @@ fi
 
 php artisan migrate --force
 
+# Create admin if missing (no Render Shell required). Configure ADMIN_* env vars in production.
+php artisan db:seed --class=AdminUserSeeder --force
+
 php artisan optimize
 
 php-fpm -D
