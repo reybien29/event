@@ -1,0 +1,13 @@
+# Railway: https://railway.app — connect GitHub, add Postgres, set env vars, deploy.
+# CLI: npm i -g @railway/cli && railway login && railway link && railway up
+#
+# Required env (Dashboard or CLI): APP_KEY, APP_URL, DB_CONNECTION=pgsql
+# Railway sets DATABASE_URL for Postgres; Laravel reads it via config/database.php.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+restartPolicyType = "ON_FAILURE"
+releaseCommand = "php /var/www/html/artisan migrate --force"

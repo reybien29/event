@@ -1,0 +1,62 @@
+# Render Blueprint: https://render.com/docs/infrastructure-as-code
+#
+# 1. Replace `repo` below with your Git repository HTTPS URL (same repo as this file).
+# 2. In the Render Dashboard, set APP_KEY (php artisan key:generate --show) and APP_URL (your onrender.com URL).
+# 3. Create a Blueprint: Dashboard → New → Blueprint → select repo → deploy.
+# 4. Ongoing deploys: `render login` then `render deploys create <SERVICE_ID> --confirm --wait`
+#
+# Validate: render blueprints validate render.yaml
+
+databases:
+  - name: event-db
+    databaseName: event
+    region: oregon
+    plan: basic-256mb
+
+services:
+  - type: web
+    name: event-web
+    runtime: docker
+    repo: https://github.com/reybien29/event.git
+    region: oregon
+    plan: starter
+    healthCheckPath: /up
+    dockerfilePath: ./Dockerfile
+    preDeployCommand: php artisan migrate --force
+    envVars:
+      - key: APP_NAME
+        value: Event
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: 'false'
+      # Set in the Render Dashboard (or via `php artisan key:generate --show` locally):
+      # APP_KEY=base64:...
+      # APP_URL=https://event-web.onrender.com (use your service URL)
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        fromDatabase:
+          name: event-db
+          property: connectionString
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      # Use `database` only if you add a Render worker running `php artisan queue:work`.
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: BROADCAST_CONNECTION
+        value: log
+      - key: FILESYSTEM_DISK
+        value: local
+      - key: VITE_APP_NAME
+        value: Event

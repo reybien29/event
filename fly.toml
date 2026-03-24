@@ -1,0 +1,32 @@
+# Fly.io: https://fly.io — install CLI, then: fly launch --no-deploy && fly postgres create && fly postgres attach ...
+# Docs: https://fly.io/docs/laravel/
+#
+# Replace app name, then: fly deploy
+# Set secrets: fly secrets set APP_KEY=base64:... APP_URL=https://your-app.fly.dev
+
+app = "your-app-name-replace-me"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  APP_ENV = "production"
+  LOG_CHANNEL = "stderr"
+  DB_CONNECTION = "pgsql"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[deploy]
+  release_command = "php /var/www/html/artisan migrate --force"
